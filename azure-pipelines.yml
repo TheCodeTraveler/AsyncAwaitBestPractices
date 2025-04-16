@@ -10,7 +10,7 @@ variables:
   PathToUnitTestsCsproj: 'src/AsyncAwaitBestPractices.UnitTests/AsyncAwaitBestPractices.UnitTests.csproj'
   PathToAsyncAwaitBestPracticesCsproj: 'src/AsyncAwaitBestPractices/AsyncAwaitBestPractices.csproj'
   PathToAsyncAwaitBestPracticesMVVMCsproj: 'src/AsyncAwaitBestPractices.MVVM/AsyncAwaitBestPractices.MVVM.csproj'
-  Xcode_Version: '16.2'
+  Xcode_Version: '16.3'
 
 trigger:
   branches:
@@ -44,9 +44,16 @@ jobs:
         condition: eq(variables['Agent.OS'], 'Darwin') # Only run this step on macOS
         inputs:
           script: | 
-            echo Availalbe Xcode Versions:
+            echo Installed Xcode Versions:
             ls -al  /Applications | grep Xcode
-            echo '##vso[task.setvariable variable=MD_APPLE_SDK_ROOT;]'/Applications/Xcode_$(Xcode_Version).app;sudo xcode-select --switch /Applications/Xcode_$(Xcode_Version).app/Contents/Developer
+
+            echo '##vso[task.setvariable variable=MD_APPLE_SDK_ROOT;]'/Applications/Xcode_$(CommunityToolkitSampleApp_Xcode_Version).app
+            sudo xcode-select --switch /Applications/Xcode_$(CommunityToolkitSampleApp_Xcode_Version).app/Contents/Developer
+
+            xcodebuild -downloadPlatform iOS
+
+            echo Installed Simulator SDKs:
+            xcodebuild -showsdks
 
       - task: InstallAppleCertificate@2
         displayName: "Set Xcode Signing Certificate"
@@ -103,15 +110,6 @@ jobs:
     pool:
       vmImage: 'windows-latest'
     steps:
-      # if this is a Release build, update the version number
-      - powershell: |
-          $buildSourceBranch = "$(Build.SourceBranch)"
-          $tagVersion = $buildSourceBranch.Substring($buildSourceBranch.LastIndexOf("/") + 1)
-          Write-Host("Branch = $buildSourceBranch, Version = $tagVersion");
-          Write-Host ("##vso[task.setvariable variable=NugetPackageVersion;]$tagVersion")
-        displayName: Set NuGet Version to Tag Number
-        condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), not(endsWith(variables['Build.SourceBranch'], '-mediaelement'))) # Only run this step when a Tag has triggered the CI Pipeline
-
       # if this is a PR build, then update the version number
       - powershell: |
           $prNumber = $env:System_PullRequest_PullRequestNumber
