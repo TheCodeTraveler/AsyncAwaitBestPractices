@@ -47,8 +47,8 @@ jobs:
             echo Installed Xcode Versions:
             ls -al  /Applications | grep Xcode
 
-            echo '##vso[task.setvariable variable=MD_APPLE_SDK_ROOT;]'/Applications/Xcode_$(CommunityToolkitSampleApp_Xcode_Version).app
-            sudo xcode-select --switch /Applications/Xcode_$(CommunityToolkitSampleApp_Xcode_Version).app/Contents/Developer
+            echo '##vso[task.setvariable variable=MD_APPLE_SDK_ROOT;]'/Applications/Xcode_$(Xcode_Version).app
+            sudo xcode-select --switch /Applications/Xcode_$(Xcode_Version).app/Contents/Developer
 
             xcodebuild -downloadPlatform iOS
 
