@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 
 namespace HackerNews;
 
-class NewsPage : BaseContentPage<NewsViewModel>
+partial class NewsPage : BaseContentPage<NewsViewModel>
 {
 	readonly IBrowser _browser;
 	readonly IDispatcher _dispatcher;
@@ -43,14 +42,11 @@ class NewsPage : BaseContentPage<NewsViewModel>
 	{
 		base.OnAppearing();
 
-		if (Content is RefreshView refreshView
-			&& refreshView.Content is CollectionView collectionView
-			&& IsNullOrEmpty(collectionView.ItemsSource))
+		if (Content is RefreshView { Content: CollectionView collectionView } refreshView
+		    && collectionView.ItemsSource.IsNullOrEmpty())
 		{
 			refreshView.IsRefreshing = true;
 		}
-
-		static bool IsNullOrEmpty(in IEnumerable? enumerable) => !enumerable?.GetEnumerator().MoveNext() ?? true;
 	}
 
 	async void HandleSelectionChanged(object? sender, SelectionChangedEventArgs e)

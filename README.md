@@ -10,7 +10,8 @@ Inspired by [John Thiriet](https://github.com/johnthiriet)'s blog posts:
 
 ###  AsyncAwaitBestPractices
 
-[![NuGet](https://buildstats.info/nuget/AsyncAwaitBestPractices?includePreReleases=true)](https://www.nuget.org/packages/AsyncAwaitBestPractices/)
+[![NuGet Version](https://img.shields.io/nuget/vpre/AsyncAwaitBestPractices)](https://www.nuget.org/packages/AsyncAwaitBestPractices/)
+ [![NuGet](https://img.shields.io/nuget/dt/AsyncAwaitBestPractices)](https://www.nuget.org/packages/AsyncAwaitBestPractices/)
 
 Available on NuGet: https://www.nuget.org/packages/AsyncAwaitBestPractices/ 
 
@@ -24,7 +25,8 @@ Available on NuGet: https://www.nuget.org/packages/AsyncAwaitBestPractices/
   
 ### AsyncAwaitBestPractices.MVVM
 
-[![NuGet](https://buildstats.info/nuget/AsyncAwaitBestPractices.MVVM?includePreReleases=true)](https://www.nuget.org/packages/AsyncAwaitBestPractices.MVVM/)
+[![NuGet Version](https://img.shields.io/nuget/vpre/AsyncAwaitBestPractices.MVVM)](https://www.nuget.org/packages/AsyncAwaitBestPractices.MVVM/)
+ [![NuGet](https://img.shields.io/nuget/dt/AsyncAwaitBestPractices.MVVM)](https://www.nuget.org/packages/AsyncAwaitBestPractices.MVVM/)
 
 - Available on NuGet: https://www.nuget.org/packages/AsyncAwaitBestPractices.MVVM/  
 
@@ -58,6 +60,14 @@ Available on NuGet: https://www.nuget.org/packages/AsyncAwaitBestPractices/
 - Add to any project supporting .NET Standard 1.0
 
 ## Why Do I Need This?
+
+### Courses
+
+Join me in this 4 Hour [DomeTrain](https://dometrain.com) course where we'll learn everything you need to know to master asynchronous programming using async await in C# and .NET
+
+[<img width="750" alt="Screenshot 2025-02-24 at 10 14 11 AM" src="https://github.com/user-attachments/assets/41e3a803-7a8b-4979-8948-71773e3db2b6" />](https://dometrain.com/course/from-zero-to-hero-asynchronous-programming-in-csharp/) [<img width="250" alt="Screenshot 2025-02-24 at 10 14 15 AM" src="https://github.com/user-attachments/assets/e3ffb431-23fe-4e50-9d33-679f5af3725d" />](https://dometrain.com/course/from-zero-to-hero-asynchronous-programming-in-csharp/?srsltid=AfmBOor-HQ1ZO6WzeTya15Cp1K_iBxnrWxmqVRhI_gbzjbbJWt1_c_nI)
+
+
 
 ### Podcasts
 

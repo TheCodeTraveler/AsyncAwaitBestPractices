@@ -9,14 +9,14 @@ partial class NewsViewModel(IDispatcher dispatcher, HackerNewsAPIService hackerN
 	readonly HackerNewsAPIService _hackerNewsAPIService = hackerNewsAPIService;
 	readonly WeakEventManager _pullToRefreshEventManager = new();
 
-	[ObservableProperty]
-	bool _isListRefreshing;
-
 	public event EventHandler<string> PullToRefreshFailed
 	{
 		add => _pullToRefreshEventManager.AddEventHandler(value);
 		remove => _pullToRefreshEventManager.RemoveEventHandler(value);
 	}
+
+	[ObservableProperty]
+	public partial bool IsListRefreshing { get; set; }
 
 	[RelayCommand]
 	async Task Refresh(CancellationToken token)
@@ -48,6 +48,8 @@ partial class NewsViewModel(IDispatcher dispatcher, HackerNewsAPIService hackerN
 		int storyCount,
 		[EnumeratorCancellation] CancellationToken token)
 	{
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(storyCount);
+
 		var topStoryIds = await _hackerNewsAPIService.GetTopStoryIDs(token).ConfigureAwait(false);
 
 		var getTopStoryTaskList = new List<Task<StoryModel>>();
@@ -56,13 +58,14 @@ partial class NewsViewModel(IDispatcher dispatcher, HackerNewsAPIService hackerN
 			getTopStoryTaskList.Add(_hackerNewsAPIService.GetStory(story, token));
 		}
 
-		while (getTopStoryTaskList.Any() && storyCount-- > 0)
+		await foreach (var topStoryTask in Task.WhenEach(getTopStoryTaskList).WithCancellation(token).ConfigureAwait(false))
 		{
-			Task<StoryModel> completedGetStoryTask = await Task.WhenAny(getTopStoryTaskList).ConfigureAwait(false);
-			getTopStoryTaskList.Remove(completedGetStoryTask);
+			yield return await topStoryTask.ConfigureAwait(false);
 
-			var story = await completedGetStoryTask.ConfigureAwait(false);
-			yield return story;
+			if (--storyCount <= 0)
+			{
+				break;
+			}
 		}
 	}
 

@@ -13,7 +13,7 @@ using UIKit;
 namespace HackerNews;
 
 // Fix Thank you to https://github.com/vhugogarcia
-public class ShellWithLargeTitles : ShellRenderer
+public partial class ShellWithLargeTitles : ShellRenderer
 {
 	public static IShellPageRendererTracker? Tracker { get; set; }
 
@@ -28,13 +28,9 @@ public class ShellWithLargeTitles : ShellRenderer
 	protected override IShellSectionRenderer CreateShellSectionRenderer(ShellSection shellSection) => new CustomShellSectionRenderer(this);
 }
 
-public class CustomShellSectionRootHeader : ShellSectionRootHeader
+public partial class CustomShellSectionRootHeader(IShellContext shellContext) : ShellSectionRootHeader(shellContext)
 {
 	volatile bool _isRotating;
-
-	public CustomShellSectionRootHeader(IShellContext shellContext) : base(shellContext)
-	{
-	}
 
 	public override void ViewDidLayoutSubviews()
 	{
@@ -213,7 +209,7 @@ public class CustomShellSectionRenderer : ShellSectionRenderer
 		// https://github.com/xamarin/Xamarin.Forms/issues/10519
 		[Export("navigationController:animationControllerForOperation:fromViewController:toViewController:")]
 		[Foundation.Preserve(Conditional = true)]
-		public static new IUIViewControllerAnimatedTransitioning? GetAnimationControllerForOperation(UINavigationController navigationController, UINavigationControllerOperation operation, UIViewController fromViewController, UIViewController toViewController) => null;
+		public new static IUIViewControllerAnimatedTransitioning? GetAnimationControllerForOperation(UINavigationController navigationController, UINavigationControllerOperation operation, UIViewController fromViewController, UIViewController toViewController) => null;
 
 		public override void DidShowViewController(UINavigationController navigationController, [Transient] UIViewController viewController, bool animated)
 		{
@@ -239,14 +235,9 @@ public class CustomShellSectionRenderer : ShellSectionRenderer
 	}
 }
 
-public class CustomShellPageRendererTracker : ShellPageRendererTracker
+public class CustomShellPageRendererTracker(IShellContext context) : ShellPageRendererTracker(context)
 {
-	public CustomShellPageRendererTracker(IShellContext context) : base(context)
-	{
-		Context = context;
-	}
-
-	public IShellContext Context { get; }
+	public IShellContext Context { get; } = context;
 
 	Page? ToolbarCurrentPage
 	{
@@ -379,7 +370,8 @@ public class CustomTitleViewContainer : UIContainerView
 
 	public override void LayoutSubviews()
 	{
-		if (Height is null or 0)
+		if (Height is null or 0
+		    && Superview is not null)
 		{
 			UpdateFrame(Superview);
 		}
