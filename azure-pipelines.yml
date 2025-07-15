@@ -172,15 +172,29 @@ jobs:
           summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
           failIfCoverageEmpty: true
 
+      # Download code signing certificate
+      - task: DownloadSecureFile@1
+        displayName: 'Download Windows Code Signing Certificate'
+        condition: and(eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['WINDOWS_CODESIGN_CERTIFICATE_NAME'], '')) # Only run this step on Windows and when certificate is available
+        inputs:
+          secureFile: $(WINDOWS_CODESIGN_CERTIFICATE_NAME)
+        name: codesigncert
+
       - task: CmdLine@2
         displayName: 'Pack AsyncAwaitBestPractices NuGet'
         inputs:
           script: 'dotnet pack $(PathToAsyncAwaitBestPracticesCsproj) -c Release -p:PackageVersion=$(NugetPackageVersion)'
+        env:
+          WINDOWS_CODESIGN_CERTIFICATE: $(codesigncert.secureFilePath)
+          WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
 
       - task: CmdLine@2
         displayName: 'Pack AsyncAwaitBestPractices.MVVM NuGet'
         inputs:
           script: 'dotnet pack $(PathToAsyncAwaitBestPracticesMVVMCsproj) -c Release -p:PackageVersion=$(NugetPackageVersion)'
+        env:
+          WINDOWS_CODESIGN_CERTIFICATE: $(codesigncert.secureFilePath)
+          WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
 
       # check vulnerabilities
       - powershell: |
