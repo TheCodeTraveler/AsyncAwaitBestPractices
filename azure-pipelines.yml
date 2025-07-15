@@ -175,7 +175,7 @@ jobs:
       # Download code signing certificate
       - task: DownloadSecureFile@1
         displayName: 'Download Windows Code Signing Certificate'
-        condition: and(eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['WINDOWS_CODESIGN_CERTIFICATE_NAME'], '')) # Only run this step on Windows and when certificate is available
+        condition: and(eq(variables['Agent.OS'], 'Windows_NT'), ne(variables['WINDOWS_CODESIGN_CERTIFICATE_NAME'], ''), ne(variables['WINDOWS_CODESIGN_PASSWORD'], '')) # Only run this step on Windows and when certificate and password are available
         inputs:
           secureFile: $(WINDOWS_CODESIGN_CERTIFICATE_NAME)
         name: codesigncert
