@@ -84,7 +84,7 @@ Join me in this 4 Hour [DomeTrain](https://dometrain.com) course where we'll lea
 [![](https://github.com/user-attachments/assets/849ef8db-354b-4223-9dc9-09263671f6e3)](https://www.youtube.com/watch?v=6frfLI3HqKI)
 
 
-### Explaination
+### Explanation
 
 Async/await is great *but* there are two subtle problems that can easily creep into code:
 1. Creating race conditions/concurrent execution (where you code things in the right order but the code executes in a different order than you expect) 
