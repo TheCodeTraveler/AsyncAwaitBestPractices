@@ -143,6 +143,12 @@ jobs:
       - task: UseDotNet@2
         displayName: 'Use .Net SDK  9.0.x'
         inputs:
+          version: '9.0.x'
+          packageType: 'sdk'
+
+      - task: UseDotNet@2
+        displayName: 'Use Latest .Net SDK, $(NET_VERSION)'
+        inputs:
           version: '$(NET_VERSION)'
           packageType: 'sdk'
 
