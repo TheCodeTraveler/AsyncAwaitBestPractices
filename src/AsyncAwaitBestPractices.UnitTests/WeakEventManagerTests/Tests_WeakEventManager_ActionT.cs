@@ -32,11 +32,11 @@ class Tests_WeakEventManager_ActionT : BaseTest
 
 		void HandleDelegateTest(string message)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(message, Is.Not.Null);
 				Assert.That(message, Is.Not.Empty);
-			});
+			}
 
 			didEventFire = true;
 			ActionEvent -= HandleDelegateTest;
@@ -59,11 +59,11 @@ class Tests_WeakEventManager_ActionT : BaseTest
 
 		void HandleDelegateTest(string message)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(message, Is.Not.Null);
 				Assert.That(message, Is.Not.Empty);
-			});
+			}
 
 			didEventFire = true;
 		}
@@ -86,11 +86,11 @@ class Tests_WeakEventManager_ActionT : BaseTest
 
 		void HandleDelegateTest(string message)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(message, Is.Not.Null);
 				Assert.That(message, Is.Not.Empty);
-			});
+			}
 
 			didEventFire = true;
 		}
@@ -114,11 +114,11 @@ class Tests_WeakEventManager_ActionT : BaseTest
 
 		void HandleDelegateTest(string message)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(message, Is.Not.Null);
 				Assert.That(message, Is.Not.Empty);
-			});
+			}
 
 			didEventFire = true;
 		}
@@ -134,21 +134,21 @@ class Tests_WeakEventManager_ActionT : BaseTest
 		//Act
 
 		//Assert
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			Assert.Throws<InvalidHandleEventException>(() => _actionEventManager.RaiseEvent(this, "Test", nameof(ActionEvent)));
 			Assert.That(didEventFire, Is.False);
-		});
+		}
 
 		ActionEvent -= HandleDelegateTest;
 
 		void HandleDelegateTest(string message)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(message, Is.Not.Null);
 				Assert.That(message, Is.Not.Empty);
-			});
+			}
 
 			didEventFire = true;
 		}
@@ -264,11 +264,11 @@ class Tests_WeakEventManager_ActionT : BaseTest
 
 		void HandleDelegateTest(string message)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(message, Is.Not.Null);
 				Assert.That(message, Is.Not.Empty);
-			});
+			}
 
 			didEventFire = true;
 			ActionEvent -= HandleDelegateTest;
@@ -322,12 +322,12 @@ class Tests_WeakEventManager_ActionT : BaseTest
 		_action = null;
 
 		//Assert
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			Assert.That(_action, Is.Null);
 			Assert.That(addEventResult, Is.Not.Null);
 			Assert.That(removeEventResult, Is.Not.Null);
-		});
+		}
 
 		void assignEvent()
 		{

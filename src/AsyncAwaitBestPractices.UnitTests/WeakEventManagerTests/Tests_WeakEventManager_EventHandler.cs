@@ -23,13 +23,13 @@ class Tests_WeakEventManager_EventHandler : BaseTest
 			if (sender is null)
 				throw new ArgumentNullException(nameof(sender));
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Not.Null);
-			});
+			}
 
 			didEventFire = true;
 			TestEvent -= HandleTestEvent;
@@ -51,11 +51,11 @@ class Tests_WeakEventManager_EventHandler : BaseTest
 
 		void HandleTestEvent(object? sender, EventArgs e)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Null);
 				Assert.That(e, Is.Not.Null);
-			});
+			}
 
 			didEventFire = true;
 			TestEvent -= HandleTestEvent;
@@ -80,14 +80,14 @@ class Tests_WeakEventManager_EventHandler : BaseTest
 			if (sender is null)
 				throw new ArgumentNullException(nameof(sender));
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Not.Null);
 				Assert.That(e, Is.EqualTo(EventArgs.Empty));
-			});
+			}
 
 
 			didEventFire = true;
@@ -113,13 +113,13 @@ class Tests_WeakEventManager_EventHandler : BaseTest
 			if (sender is null)
 				throw new ArgumentNullException(nameof(sender));
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Null);
-			});
+			}
 
 			didEventFire = true;
 			TestEvent -= HandleTestEvent;
@@ -282,11 +282,11 @@ class Tests_WeakEventManager_EventHandler : BaseTest
 		//Act
 
 		//Assert
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			Assert.Throws<InvalidHandleEventException>(() => TestWeakEventManager.RaiseEvent(nameof(TestEvent)));
 			Assert.That(didEventFire, Is.False);
-		});
+		}
 
 		TestEvent -= HandleTestEvent;
 
@@ -311,13 +311,13 @@ class Tests_WeakEventManager_EventHandler : BaseTest
 			if (sender is null)
 				throw new ArgumentNullException(nameof(sender));
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Not.Null);
-			});
+			}
 
 			didEventFire = true;
 			TestEvent -= HandleTestEvent;

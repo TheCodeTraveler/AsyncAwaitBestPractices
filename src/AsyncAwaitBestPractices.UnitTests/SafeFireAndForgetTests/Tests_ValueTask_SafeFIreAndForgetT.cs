@@ -65,12 +65,12 @@ class Tests_ValueTask_SafeFireAndForgetT : BaseAsyncValueCommandTest
 		await BaseTest.NoParameterTask();
 		await BaseTest.NoParameterTask();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(exception1, Is.Not.Null);
 			Assert.That(exception2, Is.Not.Null);
-		});
+		}
 	}
 
 	[Test]
@@ -86,12 +86,12 @@ class Tests_ValueTask_SafeFireAndForgetT : BaseAsyncValueCommandTest
 		await BaseTest.NoParameterTask();
 		await BaseTest.NoParameterTask();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(exception1, Is.Not.Null);
 			Assert.That(exception2, Is.Not.Null);
-		});
+		}
 	}
 
 	[Test]

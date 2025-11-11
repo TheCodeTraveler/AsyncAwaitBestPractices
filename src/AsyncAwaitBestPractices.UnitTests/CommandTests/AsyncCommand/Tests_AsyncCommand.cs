@@ -61,12 +61,12 @@ class Tests_AsyncCommand : BaseAsyncCommandTest
 		AsyncCommand<int> command = new AsyncCommand<int>(IntParameterTask, CanExecuteTrue);
 		AsyncCommand<int, bool> command2 = new AsyncCommand<int, bool>(IntParameterTask, CanExecuteTrue);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(null), Is.True);
 			Assert.That(command2.CanExecute(true), Is.True);
-		});
+		}
 	}
 
 	[Test]
@@ -76,12 +76,12 @@ class Tests_AsyncCommand : BaseAsyncCommandTest
 		AsyncCommand<int> command = new AsyncCommand<int>(IntParameterTask, CanExecuteFalse);
 		AsyncCommand<int, int> command2 = new AsyncCommand<int, int>(IntParameterTask, CanExecuteFalse);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(null), Is.False);
 			Assert.That(command2.CanExecute(0), Is.False);
-		});
+		}
 	}
 
 	[Test]
@@ -127,22 +127,22 @@ class Tests_AsyncCommand : BaseAsyncCommandTest
 		//Act
 		canCommandExecute = true;
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(null), Is.True);
 			Assert.That(didCanExecuteChangeFire, Is.False);
-		});
+		}
 
 		//Act
 		command.RaiseCanExecuteChanged();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(didCanExecuteChangeFire, Is.True);
 			Assert.That(command.CanExecute(null), Is.True);
-		});
+		}
 
 		void handleCanExecuteChanged(object? sender, EventArgs e) => didCanExecuteChangeFire = true;
 

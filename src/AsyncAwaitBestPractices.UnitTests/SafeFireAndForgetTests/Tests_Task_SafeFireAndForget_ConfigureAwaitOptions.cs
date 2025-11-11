@@ -97,12 +97,12 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 		await NoParameterTask();
 		await NoParameterTask();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(exception1, Is.Not.Null);
 			Assert.That(exception2, Is.Not.Null);
-		});
+		}
 	}
 
 	[Test]
@@ -118,12 +118,12 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 		await NoParameterTask();
 		await NoParameterTask();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(exception1, Is.Null);
 			Assert.That(exception2, Is.Null);
-		});
+		}
 	}
 
 	[Test]
@@ -142,7 +142,7 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 
 		workingThread = await threadTCS.Task;
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(initialThread, Is.Not.Null);
@@ -152,7 +152,7 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 			Assert.That(finalThread, Is.EqualTo(initialThread));
 			Assert.That(workingThread, Is.Not.EqualTo(initialThread));
 			Assert.That(workingThread, Is.Not.EqualTo(finalThread));
-		});
+		}
 
 		async Task BlockingThreadMethod()
 		{
@@ -177,7 +177,7 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 
 		workingThread = await threadTCS.Task;
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(initialThread, Is.Not.Null);
@@ -187,7 +187,7 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 			Assert.That(finalThread, Is.EqualTo(initialThread));
 			Assert.That(workingThread, Is.EqualTo(initialThread));
 			Assert.That(workingThread, Is.EqualTo(finalThread));
-		});
+		}
 
 		Task NonAsyncMethod()
 		{
@@ -212,7 +212,7 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 
 		workingThread = await threadTCS.Task;
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(initialThread, Is.Not.Null);
@@ -222,7 +222,7 @@ class Tests_Task_SafeFireAndForget_ConfigureAwaitOptions : BaseTest
 			Assert.That(finalThread, Is.EqualTo(initialThread));
 			Assert.That(workingThread, Is.EqualTo(initialThread));
 			Assert.That(workingThread, Is.EqualTo(finalThread));
-		});
+		}
 
 		Task NonAsyncMethod()
 		{

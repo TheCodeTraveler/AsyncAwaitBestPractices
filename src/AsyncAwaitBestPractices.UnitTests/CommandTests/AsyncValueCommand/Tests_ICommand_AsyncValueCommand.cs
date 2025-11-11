@@ -58,12 +58,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.Execute(Delay));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -78,12 +78,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.Execute(Delay));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -99,12 +99,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.Execute("Hello World"));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -120,12 +120,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.Execute("Hello World"));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -141,12 +141,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.Execute(null));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -162,12 +162,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.Execute(null));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -182,12 +182,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.CanExecute(null));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -202,12 +202,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 		//Act
 		actualInvalidCommandParameterException = Assert.Throws<InvalidCommandParameterException>(() => command.Execute(null));
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(actualInvalidCommandParameterException, Is.Not.Null);
 			Assert.That(actualInvalidCommandParameterException?.Message, Is.EqualTo(expectedInvalidCommandParameterException.Message));
-		});
+		}
 	}
 
 	[Test]
@@ -219,12 +219,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 
 		//Act
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(null), Is.True);
 			Assert.That(command2.CanExecute(0), Is.True);
-		});
+		}
 	}
 
 	[Test]
@@ -236,12 +236,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 
 		//Act
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(null), Is.False);
 			Assert.That(command2.CanExecute(0), Is.False);
-		});
+		}
 	}
 
 	[Test]
@@ -264,12 +264,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 
 		//Act
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(true), Is.True);
 			Assert.That(command.CanExecute(false), Is.False);
-		});
+		}
 	}
 
 	[Test]
@@ -280,12 +280,12 @@ class Tests_ICommand_AsyncValueCommand : BaseAsyncValueCommandTest
 
 		//Act
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(true), Is.True);
 			Assert.That(command.CanExecute(false), Is.False);
-		});
+		}
 	}
 
 	[Test]

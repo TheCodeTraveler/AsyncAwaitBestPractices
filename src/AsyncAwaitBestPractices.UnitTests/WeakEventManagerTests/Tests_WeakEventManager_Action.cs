@@ -97,11 +97,11 @@ class Tests_WeakEventManager_Action : BaseTest
 		//Act
 
 		//Assert
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			Assert.Throws<InvalidHandleEventException>(() => _actionEventManager.RaiseEvent(this, EventArgs.Empty, nameof(ActionEvent)));
 			Assert.That(didEventFire, Is.False);
-		});
+		}
 
 		ActionEvent -= HandleDelegateTest;
 

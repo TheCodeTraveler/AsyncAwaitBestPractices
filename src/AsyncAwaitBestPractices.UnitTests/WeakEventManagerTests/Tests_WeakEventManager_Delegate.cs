@@ -34,13 +34,13 @@ class Tests_WeakEventManager_Delegate : BaseTest, INotifyPropertyChanged
 
 		void HandleDelegateTest(object? sender, PropertyChangedEventArgs e)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender?.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Not.Null);
-			});
+			}
 
 			didEventFire = true;
 			PropertyChanged -= HandleDelegateTest;
@@ -62,11 +62,11 @@ class Tests_WeakEventManager_Delegate : BaseTest, INotifyPropertyChanged
 
 		void HandleDelegateTest(object? sender, PropertyChangedEventArgs e)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Null);
 				Assert.That(e, Is.Not.Null);
-			});
+			}
 
 			didEventFire = true;
 			PropertyChanged -= HandleDelegateTest;
@@ -82,12 +82,12 @@ class Tests_WeakEventManager_Delegate : BaseTest, INotifyPropertyChanged
 
 		//Act
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.Throws<ArgumentException>(() => _propertyChangedWeakEventManager.RaiseEvent(this, EventArgs.Empty, nameof(PropertyChanged)));
 			Assert.That(didEventFire, Is.False);
-		});
+		}
 
 		PropertyChanged -= HandleDelegateTest;
 
@@ -109,13 +109,13 @@ class Tests_WeakEventManager_Delegate : BaseTest, INotifyPropertyChanged
 
 		void HandleDelegateTest(object? sender, PropertyChangedEventArgs e)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender?.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Null);
-			});
+			}
 
 			didEventFire = true;
 			PropertyChanged -= HandleDelegateTest;
@@ -347,12 +347,12 @@ class Tests_WeakEventManager_Delegate : BaseTest, INotifyPropertyChanged
 		_nullablePropertyChangedEventHandler = null;
 
 		//Assert
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			Assert.That(_nullablePropertyChangedEventHandler, Is.Null);
 			Assert.That(addEventHandlerResult, Is.Not.Null);
 			Assert.That(removeEventHandlerResult, Is.Not.Null);
-		});
+		}
 
 		void assignEventHandler()
 		{
@@ -381,13 +381,13 @@ class Tests_WeakEventManager_Delegate : BaseTest, INotifyPropertyChanged
 
 		void HandleDelegateTest(object? sender, PropertyChangedEventArgs e)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender?.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Not.Null);
-			});
+			}
 
 			didEventFire = true;
 			PropertyChanged -= HandleDelegateTest;

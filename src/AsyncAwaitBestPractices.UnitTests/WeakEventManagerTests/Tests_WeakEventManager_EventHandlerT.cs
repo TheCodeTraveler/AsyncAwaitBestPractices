@@ -25,14 +25,14 @@ class Tests_WeakEventManager_EventHandlerT : BaseTest
 			if (sender is null || e is null)
 				throw new ArgumentNullException(nameof(sender));
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Not.Null);
 				Assert.That(e, Is.EqualTo(stringEventArg));
-			});
+			}
 
 			didEventFire = true;
 			TestStringEvent -= HandleTestEvent;
@@ -57,13 +57,13 @@ class Tests_WeakEventManager_EventHandlerT : BaseTest
 
 		void HandleTestEvent(object? sender, string e)
 		{
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Null);
 
 				Assert.That(e, Is.Not.Null);
 				Assert.That(e, Is.EqualTo(stringEventArg));
-			});
+			}
 
 			didEventFire = true;
 			TestStringEvent -= HandleTestEvent;
@@ -82,13 +82,13 @@ class Tests_WeakEventManager_EventHandlerT : BaseTest
 			if (sender is null)
 				throw new ArgumentNullException(nameof(sender));
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Null);
-			});
+			}
 
 			didEventFire = true;
 			TestStringEvent -= HandleTestEvent;
@@ -139,13 +139,13 @@ class Tests_WeakEventManager_EventHandlerT : BaseTest
 			if (sender is null)
 				throw new ArgumentNullException(nameof(sender));
 
-			Assert.Multiple(() =>
+			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(sender, Is.Not.Null);
 				Assert.That(sender.GetType(), Is.EqualTo(this.GetType()));
 
 				Assert.That(e, Is.Not.Null);
-			});
+			}
 
 			didEventFire = true;
 			TestStringEvent -= HandleTestEvent;
@@ -331,11 +331,11 @@ class Tests_WeakEventManager_EventHandlerT : BaseTest
 		//Act
 
 		//Assert
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			Assert.Throws<InvalidHandleEventException>(() => TestStringWeakEventManager.RaiseEvent("", nameof(TestStringEvent)));
 			Assert.That(didEventFire, Is.False);
-		});
+		}
 
 		TestStringEvent -= HandleTestStringEvent;
 

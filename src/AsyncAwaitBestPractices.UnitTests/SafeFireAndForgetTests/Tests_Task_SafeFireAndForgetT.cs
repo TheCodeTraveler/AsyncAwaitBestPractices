@@ -65,12 +65,12 @@ class Tests_SafeFireAndForgetT : BaseTest
 		await NoParameterTask();
 		await NoParameterTask();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(exception1, Is.Not.Null);
 			Assert.That(exception2, Is.Not.Null);
-		});
+		}
 	}
 
 	[Test]

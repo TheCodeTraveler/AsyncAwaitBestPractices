@@ -158,14 +158,14 @@ class Tests_ICommand_AsyncCommand : BaseAsyncCommandTest
 		ICommand command = new AsyncCommand<int?>(NullableIntParameterTask, CanExecuteTrue);
 		ICommand command2 = new AsyncCommand<int, int>(IntParameterTask, CanExecuteTrue);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Act
 
 			//Assert
 			Assert.That(command.CanExecute(null), Is.True);
 			Assert.That(command2.CanExecute(0), Is.True);
-		});
+		}
 	}
 
 	[Test]
@@ -175,14 +175,14 @@ class Tests_ICommand_AsyncCommand : BaseAsyncCommandTest
 		ICommand command = new AsyncCommand<int?>(NullableIntParameterTask, CanExecuteFalse);
 		ICommand command2 = new AsyncCommand<int, int>(IntParameterTask, CanExecuteFalse);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Act
 
 			//Assert
 			Assert.That(command.CanExecute(null), Is.False);
 			Assert.That(command2.CanExecute(0), Is.False);
-		});
+		}
 	}
 
 	[Test]
@@ -237,12 +237,12 @@ class Tests_ICommand_AsyncCommand : BaseAsyncCommandTest
 		//Arrange
 		ICommand command = new AsyncCommand<int>(IntParameterTask, CanExecuteDynamic);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(true), Is.True);
 			Assert.That(command.CanExecute(false), Is.False);
-		});
+		}
 	}
 
 	[Test]
@@ -251,12 +251,12 @@ class Tests_ICommand_AsyncCommand : BaseAsyncCommandTest
 		//Arrange
 		ICommand command = new AsyncCommand<int>(IntParameterTask, CanExecuteDynamic);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(true), Is.True);
 			Assert.That(command.CanExecute(false), Is.False);
-		});
+		}
 	}
 
 	[Test]

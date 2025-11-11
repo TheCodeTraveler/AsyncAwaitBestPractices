@@ -94,12 +94,12 @@ class Tests_IAsyncValueCommand : BaseAsyncValueCommandTest
 		IAsyncValueCommand<int?> command = new AsyncValueCommand<int?>(NullableIntParameterTask, CanExecuteTrue);
 		IAsyncValueCommand<int, int> command2 = new AsyncValueCommand<int, int>(IntParameterTask, CanExecuteTrue);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(null), Is.True);
 			Assert.That(command2.CanExecute(0), Is.True);
-		});
+		}
 	}
 
 	[Test]
@@ -109,12 +109,12 @@ class Tests_IAsyncValueCommand : BaseAsyncValueCommandTest
 		IAsyncValueCommand<int?> command = new AsyncValueCommand<int?>(NullableIntParameterTask, CanExecuteFalse);
 		IAsyncValueCommand<int, int> command2 = new AsyncValueCommand<int, int>(IntParameterTask, CanExecuteFalse);
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(command.CanExecute(null), Is.False);
 			Assert.That(command2.CanExecute(0), Is.False);
-		});
+		}
 	}
 
 	[Test]

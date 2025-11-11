@@ -96,12 +96,12 @@ class Tests_Task_SafeFIreAndForgetT_ConfigureAwaitOptions : BaseTest
 		await NoParameterTask();
 		await NoParameterTask();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(exception1, Is.Not.Null);
 			Assert.That(exception2, Is.Not.Null);
-		});
+		}
 	}
 	
 	[Test]
@@ -117,12 +117,12 @@ class Tests_Task_SafeFIreAndForgetT_ConfigureAwaitOptions : BaseTest
 		await NoParameterTask();
 		await NoParameterTask();
 
-		Assert.Multiple(() =>
+		using (Assert.EnterMultipleScope())
 		{
 			//Assert
 			Assert.That(exception1, Is.Null);
 			Assert.That(exception2, Is.Null);
-		});
+		}
 	}
 }
 #endif
