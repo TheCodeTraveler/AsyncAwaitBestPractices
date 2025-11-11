@@ -34,7 +34,7 @@ jobs:
         'Windows':
           image: 'windows-latest'
         'macOS':
-          image: 'macos-26'
+          image: 'macos-15'
     pool:
       vmImage: $(image)
     
