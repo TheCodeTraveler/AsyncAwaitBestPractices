@@ -70,11 +70,11 @@ partial class NewsPage : BaseContentPage<NewsViewModel>
 			}
 			else
 			{
-				await DisplayAlert("Invalid Article", "ASK HN articles have no url", "OK");
+				await DisplayAlertAsync("Invalid Article", "ASK HN articles have no url", "OK");
 			}
 		}
 	}
 
 	void HandlePullToRefreshFailed(object? sender, string message) =>
-		_dispatcher.DispatchAsync(() => DisplayAlert("Refresh Failed", message, "OK"));
+		_dispatcher.DispatchAsync(() => DisplayAlertAsync("Refresh Failed", message, "OK"));
 }

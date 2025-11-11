@@ -2,7 +2,7 @@ variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   CurrentSemanticVersionBase: '99.0.0'
   PreviewNumber: $[counter(variables['CurrentSemanticVersionBase'], 1001)]
-  NET_VERSION: '9.0.x'
+  NET_VERSION: '10.0.x'
   CurrentSemanticVersion: '$(CurrentSemanticVersionBase)-preview$(PreviewNumber)'
   NugetPackageVersion: '$(CurrentSemanticVersion)'
   PathToSolution: 'AsyncAwaitBestPractices.sln'
@@ -34,7 +34,7 @@ jobs:
         'Windows':
           image: 'windows-latest'
         'macOS':
-          image: 'macos-15'
+          image: 'macos-26'
     pool:
       vmImage: $(image)
     

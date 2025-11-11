@@ -2,17 +2,17 @@
 <Project>
   <PropertyGroup>
     <Nullable>enable</Nullable>
-    <NuGetVersion>9.0.0</NuGetVersion>
+    <NuGetVersion>10.0.0</NuGetVersion>
     <LangVersion>preview</LangVersion>
     <Deterministic>true</Deterministic>
-    <LatestSupportedTFM>net9.0</LatestSupportedTFM>
+    <LatestSupportedTFM>net10.0</LatestSupportedTFM>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
     <GenerateErrorForMissingTargetingPacks>false</GenerateErrorForMissingTargetingPacks>
 
     <!-- MAUI Specific -->
-    <MauiPackageVersion>9.0.100</MauiPackageVersion>
+    <MauiPackageVersion>10.0.0</MauiPackageVersion>
     <MauiStrictXamlCompilation>true</MauiStrictXamlCompilation>
     <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
     <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
