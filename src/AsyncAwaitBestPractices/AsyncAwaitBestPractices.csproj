@@ -60,24 +60,27 @@
     <!-- Manage TargetFrameworks for distribution (Release Mode) -->
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="**/*.shared.cs"/>
-    <Compile Include="**/*.shared.*.cs"/>
+    <Compile Include="**/*.shared.cs" />
+    <Compile Include="**/*.shared.*.cs" />
   </ItemGroup>
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard1.0')) ">
-    <PackageReference Include="System.ValueTuple" Version="4.5.0"/>
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1"/>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4"/>
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0"/>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.0')) ">
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4"/>
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0"/>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="NETStandard.Library" PrivateAssets="all"/>
-    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)'=='Release' ">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>

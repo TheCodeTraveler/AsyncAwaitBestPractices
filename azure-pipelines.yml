@@ -5,7 +5,7 @@ variables:
   NET_VERSION: '10.0.x'
   CurrentSemanticVersion: '$(CurrentSemanticVersionBase)-preview$(PreviewNumber)'
   NugetPackageVersion: '$(CurrentSemanticVersion)'
-  PathToSolution: 'AsyncAwaitBestPractices.sln'
+  PathToSolution: 'AsyncAwaitBestPractices.slnx'
   PathToSampleAppCsproj: 'sample/HackerNews.csproj'
   PathToUnitTestsCsproj: 'src/AsyncAwaitBestPractices.UnitTests/AsyncAwaitBestPractices.UnitTests.csproj'
   PathToAsyncAwaitBestPracticesCsproj: 'src/AsyncAwaitBestPractices/AsyncAwaitBestPractices.csproj'

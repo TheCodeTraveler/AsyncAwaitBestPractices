@@ -41,7 +41,7 @@ class Tests_SafeFireAndForget_Initialize : BaseTest
 	public void SafeFireAndForget_SetDefaultExceptionHandling_NullHandler()
 	{
 		//Act & Assert
-		Assert.DoesNotThrow(() => SafeFireAndForgetExtensions.SetDefaultExceptionHandling(null!));
+		Assert.Throws<ArgumentNullException>(() => SafeFireAndForgetExtensions.SetDefaultExceptionHandling(null!));
 	}
 
 	[Test]

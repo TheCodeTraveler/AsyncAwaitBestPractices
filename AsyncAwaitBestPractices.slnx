@@ -1,0 +1,21 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="iPhone" />
+    <Platform Name="iPhoneSimulator" />
+  </Configurations>
+  <Folder Name="/Sample/">
+    <Project Path="sample/HackerNews.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="src/AsyncAwaitBestPractices.UnitTests/AsyncAwaitBestPractices.UnitTests.csproj" />
+  </Folder>
+  <Project Path="src/AsyncAwaitBestPractices.MVVM/AsyncAwaitBestPractices.MVVM.csproj" />
+  <Project Path="src/AsyncAwaitBestPractices/AsyncAwaitBestPractices.csproj" />
+</Solution>

@@ -39,7 +39,7 @@ class Tests_WeakEventManager_MemoryLeaks : BaseTest
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining)]
-	void CreateAndSubscribeTarget(WeakEventManager weakEventManager)
+	static void CreateAndSubscribeTarget(WeakEventManager weakEventManager)
 	{
 		var target = new TestEventTarget();
 		EventHandler handler = target.HandleEvent;
@@ -47,16 +47,16 @@ class Tests_WeakEventManager_MemoryLeaks : BaseTest
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining)]
-	void CreateAndSubscribeTargetT(WeakEventManager<string> weakEventManager)
+	static void CreateAndSubscribeTargetT(WeakEventManager<string> weakEventManager)
 	{
 		var target = new TestEventTarget();
-		EventHandler<string> handler = target.HandleEventT;
+		EventHandler<string> handler = TestEventTarget.HandleEventT;
 		weakEventManager.AddEventHandler(handler);
 	}
 
 	class TestEventTarget
 	{
 		public void HandleEvent(object? sender, EventArgs e) { }
-		public void HandleEventT(object? sender, string e) { }
+		public static void HandleEventT(object? sender, string e) { }
 	}
 }

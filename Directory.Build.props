@@ -16,7 +16,7 @@
     <MauiStrictXamlCompilation>true</MauiStrictXamlCompilation>
     <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
     <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
-    
+
     <!-- Prevent NuGet Pacakge Vulnerabilities -->
     <NuGetAudit>enable</NuGetAudit>
     <NuGetAuditMode>all</NuGetAuditMode>
@@ -87,8 +87,4 @@
       IL3050,IL3051,IL3052,IL3053,IL3054,IL3055,IL3056
     </WarningsAsErrors>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <InternalsVisibleTo Include="AsyncAwaitBestPractices.UnitTests" />
-  </ItemGroup>
 </Project>

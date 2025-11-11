@@ -3,6 +3,8 @@
     <PropertyGroup>
         <TargetFrameworks>net462;net8.0;net9.0;$(LatestSupportedTFM)</TargetFrameworks>
         <IsPackable>false</IsPackable>
+        <SignAssembly>True</SignAssembly>
+        <AssemblyOriginatorKeyFile>AsyncAwaitBestPracticesUnitTests.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="NUnit" Version="4.4.0" />

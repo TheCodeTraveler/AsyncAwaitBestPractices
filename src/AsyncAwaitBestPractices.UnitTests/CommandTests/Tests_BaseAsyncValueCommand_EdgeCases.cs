@@ -18,7 +18,7 @@ class Tests_BaseAsyncValueCommand_EdgeCases : BaseTest
 	public void BaseAsyncValueCommand_ICommand_CanExecute_InvalidParameterType_ThrowsInvalidCommandParameterException()
 	{
 		//Arrange
-		var command = new TestAsyncValueCommand(NoParameterValueTask);
+		var command = new TestAsyncValueCommand(IntParameterValueTask);
 		System.Windows.Input.ICommand iCommand = command;
 
 		//Act & Assert
@@ -29,16 +29,16 @@ class Tests_BaseAsyncValueCommand_EdgeCases : BaseTest
 	public void BaseAsyncValueCommand_ICommand_Execute_InvalidParameterType_ThrowsInvalidCommandParameterException()
 	{
 		//Arrange
-		var command = new TestAsyncValueCommand(NoParameterValueTask);
+		var command = new TestAsyncValueCommand(IntParameterValueTask);
 		System.Windows.Input.ICommand iCommand = command;
 
 		//Act & Assert
 		Assert.Throws<InvalidCommandParameterException>(() => iCommand.Execute("invalid"));
 	}
 
-	class TestAsyncValueCommand : BaseAsyncValueCommand<object?, object?>
+	class TestAsyncValueCommand : BaseAsyncValueCommand<int, int>
 	{
-		public TestAsyncValueCommand(Func<object?, ValueTask>? execute) : base(execute, null, null, false)
+		public TestAsyncValueCommand(Func<int, ValueTask>? execute) : base(execute, null, null, false)
 		{
 		}
 	}

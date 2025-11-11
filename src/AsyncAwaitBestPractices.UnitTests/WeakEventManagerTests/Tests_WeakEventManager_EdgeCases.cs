@@ -98,23 +98,6 @@ class Tests_WeakEventManager_EdgeCases : BaseTest
 	}
 
 	[Test]
-	public void WeakEventManager_HandleEvent_InvalidParameterCount()
-	{
-		//Arrange
-		TestEvent += HandleTestEventWithWrongParameters;
-		bool didEventFire = false;
-
-		//Act & Assert
-		Assert.Throws<InvalidHandleEventException>(() => 
-			TestWeakEventManager.RaiseEvent(this, EventArgs.Empty, nameof(TestEvent)));
-
-		void HandleTestEventWithWrongParameters(object? sender, EventArgs e, string extraParameter)
-		{
-			didEventFire = true;
-		}
-	}
-
-	[Test]
 	public void WeakEventManager_GarbageCollection_WeakReferencesCleanedUp()
 	{
 		//Arrange

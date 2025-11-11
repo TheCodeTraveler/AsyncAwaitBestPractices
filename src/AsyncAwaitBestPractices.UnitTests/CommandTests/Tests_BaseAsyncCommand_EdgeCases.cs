@@ -11,14 +11,14 @@ class Tests_BaseAsyncCommand_EdgeCases : BaseTest
 	public void BaseAsyncCommand_Constructor_NullExecute_ThrowsArgumentNullException()
 	{
 		//Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new TestAsyncCommand(null!));
+		Assert.Throws<ArgumentNullException>(() => new TestAsyncCommand(null));
 	}
 
 	[Test]
 	public void BaseAsyncCommand_ICommand_CanExecute_InvalidParameterType_ThrowsInvalidCommandParameterException()
 	{
 		//Arrange
-		var command = new TestAsyncCommand(NoParameterTask);
+		var command = new TestAsyncCommand(IntParameterTask);
 		System.Windows.Input.ICommand iCommand = command;
 
 		//Act & Assert
@@ -29,17 +29,14 @@ class Tests_BaseAsyncCommand_EdgeCases : BaseTest
 	public void BaseAsyncCommand_ICommand_Execute_InvalidParameterType_ThrowsInvalidCommandParameterException()
 	{
 		//Arrange
-		var command = new TestAsyncCommand(NoParameterTask);
+		var command = new TestAsyncCommand(IntParameterTask);
 		System.Windows.Input.ICommand iCommand = command;
 
 		//Act & Assert
 		Assert.Throws<InvalidCommandParameterException>(() => iCommand.Execute("invalid"));
 	}
 
-	class TestAsyncCommand : BaseAsyncCommand<object?, object?>
+	class TestAsyncCommand(Func<int, Task>? execute) : BaseAsyncCommand<int, int>(execute, null, null, false)
 	{
-		public TestAsyncCommand(Func<object?, Task>? execute) : base(execute, null, null, false)
-		{
-		}
 	}
 }

@@ -14,7 +14,7 @@ class Tests_BaseCommand_IsNullable : BaseTest
 		var command = new TestAsyncCommand(NoParameterTask);
 
 		//Act
-		var result = command.TestIsNullable<string>();
+		var result = TestAsyncCommand.TestIsNullable<string>();
 
 		//Assert
 		Assert.That(result, Is.True);
@@ -27,7 +27,7 @@ class Tests_BaseCommand_IsNullable : BaseTest
 		var command = new TestAsyncCommand(NoParameterTask);
 
 		//Act
-		var result = command.TestIsNullable<int>();
+		var result = TestAsyncCommand.TestIsNullable<int>();
 
 		//Assert
 		Assert.That(result, Is.False);
@@ -40,7 +40,7 @@ class Tests_BaseCommand_IsNullable : BaseTest
 		var command = new TestAsyncCommand(NoParameterTask);
 
 		//Act
-		var result = command.TestIsNullable<int?>();
+		var result = TestAsyncCommand.TestIsNullable<int?>();
 
 		//Assert
 		Assert.That(result, Is.True);
@@ -50,7 +50,7 @@ class Tests_BaseCommand_IsNullable : BaseTest
 	{
 		readonly Func<Task> _execute = execute;
 
-		public bool TestIsNullable<T>() => IsNullable<T>();
+		public static bool TestIsNullable<T>() => IsNullable<T>();
 
 		public async void Execute(object? parameter) => await _execute();
 	}

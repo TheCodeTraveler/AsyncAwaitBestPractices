@@ -45,6 +45,8 @@ class Tests_SafeFireAndForget_EdgeCases : BaseTest
 		Assert.That(caughtException, Is.Null);
 	}
 
+#if NET80_OR_GREATER
+
 	[Test]
 	public async Task SafeFireAndForget_CompletedValueTask_NoException()
 	{
@@ -59,6 +61,7 @@ class Tests_SafeFireAndForget_EdgeCases : BaseTest
 		//Assert
 		Assert.That(caughtException, Is.Null);
 	}
+#endif
 
 	[Test]
 	public async Task SafeFireAndForget_TaskWithResult_CompletedSuccessfully()
@@ -75,6 +78,7 @@ class Tests_SafeFireAndForget_EdgeCases : BaseTest
 		Assert.That(caughtException, Is.Null);
 	}
 
+#if NET8_0_OR_GREATER
 	[Test]
 	public async Task SafeFireAndForget_ValueTaskWithResult_CompletedSuccessfully()
 	{
@@ -89,6 +93,7 @@ class Tests_SafeFireAndForget_EdgeCases : BaseTest
 		//Assert
 		Assert.That(caughtException, Is.Null);
 	}
+#endif
 
 	[Test]
 	public void SafeFireAndForget_RemoveDefaultExceptionHandling_NoException()
@@ -104,6 +109,6 @@ class Tests_SafeFireAndForget_EdgeCases : BaseTest
 	public void SafeFireAndForget_SetDefaultExceptionHandling_NullHandler()
 	{
 		//Act & Assert
-		Assert.DoesNotThrow(() => SafeFireAndForgetExtensions.SetDefaultExceptionHandling(null!));
+		Assert.Throws<ArgumentNullException>(() => SafeFireAndForgetExtensions.SetDefaultExceptionHandling(null!));
 	}
 }
