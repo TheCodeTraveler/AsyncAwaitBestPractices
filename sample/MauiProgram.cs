@@ -16,7 +16,7 @@ public static class MauiProgram
 								.UseMauiCommunityToolkit()
 								.UseMauiCommunityToolkitMarkup();
 
-		builder.ConfigureMauiHandlers(handlers =>
+		builder.ConfigureMauiHandlers(static handlers =>
 		{
 #if IOS || MACCATALYST
 			handlers.AddHandler<Shell, ShellWithLargeTitles>();
@@ -32,8 +32,8 @@ public static class MauiProgram
 		builder.Services.AddSingleton<HackerNewsAPIService>();
 
 		builder.Services.AddRefitClient<IHackerNewsAPI>()
-							.ConfigureHttpClient(client => client.BaseAddress = new Uri("https://hacker-news.firebaseio.com/v0"))
-							.AddStandardResilienceHandler(options => options.Retry = new MobileHttpRetryStrategyOptions());
+							.ConfigureHttpClient(static client => client.BaseAddress = new Uri("https://hacker-news.firebaseio.com/v0"))
+							.AddStandardResilienceHandler(static options => options.Retry = new MobileHttpRetryStrategyOptions());
 
 		// Pages + View Models
 		builder.Services.AddTransientWithShellRoute<NewsPage, NewsViewModel>($"//{nameof(NewsPage)}");

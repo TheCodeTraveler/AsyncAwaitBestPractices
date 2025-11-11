@@ -52,7 +52,7 @@ partial class NewsViewModel(IDispatcher dispatcher, HackerNewsAPIService hackerN
 
 		var getTopStoryTaskList = topStoryIds.Select(id => _hackerNewsAPIService.GetStory(id, token)).ToList();
 
-		await foreach (var topStoryTask in Task.WhenEach(getTopStoryTaskList).WithCancellation(token).ConfigureAwait(false))
+		await foreach (var topStoryTask in getTopStoryTaskList.ToAsyncEnumerable().WithCancellation(token).ConfigureAwait(false))
 		{
 			yield return await topStoryTask.ConfigureAwait(false);
 
