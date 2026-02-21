@@ -47,6 +47,17 @@ Available on NuGet: https://www.nuget.org/packages/AsyncAwaitBestPractices/
   - `AsyncValueCommand<TExecute, TCanExecute> : IAsyncValueCommand<TExecute, TCanExecute>`   
 - [Usage instructions](#asyncawaitbestpracticesmvvm-2)
 
+## Security & Code Signing
+
+AsyncAwaitBestPractices supports **Windows Authenticode code signing** for compatibility with Windows 11 Smart App Control. This ensures that applications using the library won't be blocked by enhanced security features.
+
+- **Automatic signing** in CI/CD pipeline when certificates are available
+- **Conditional signing** - doesn't break local development
+- **Platform detection** - only signs on Windows
+- **Secure certificate storage** using Azure DevOps secure files
+
+For detailed setup instructions, see [CODE_SIGNING.md](CODE_SIGNING.md).
+
 ## Setup
 
 ###  AsyncAwaitBestPractices
