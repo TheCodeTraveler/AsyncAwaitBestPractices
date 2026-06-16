@@ -49,6 +49,11 @@
     <Configurations>Debug;Release</Configurations>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
+    <!-- Code signing configuration for Windows Authenticode -->
+    <CodeSigningCertificatePath Condition="'$(CodeSigningCertificatePath)' == ''">$(WINDOWS_CODESIGN_CERTIFICATE)</CodeSigningCertificatePath>
+    <CodeSigningCertificatePassword Condition="'$(CodeSigningCertificatePassword)' == ''">$(WINDOWS_CODESIGN_PASSWORD)</CodeSigningCertificatePassword>
+    <CodeSigningTimestampServer Condition="'$(CodeSigningTimestampServer)' == ''">http://timestamp.digicert.com</CodeSigningTimestampServer>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
     <!-- Manage TargetFrameworks for development (Debug Mode) -->
@@ -71,4 +76,12 @@
   <ItemGroup>
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
   </ItemGroup>
+  
+  <!-- Code signing target -->
+  <Target Name="SignAssembly" AfterTargets="AfterBuild" 
+          Condition="'$(Configuration)' == 'Release' And '$(CodeSigningCertificatePath)' != '' And Exists('$(CodeSigningCertificatePath)') And $([MSBuild]::IsOSPlatform('windows'))">
+    <Message Text="Code signing $(TargetPath) with certificate $(CodeSigningCertificatePath)" Importance="high" />
+    <Exec Command="signtool sign /f &quot;$(CodeSigningCertificatePath)&quot; /t &quot;$(CodeSigningTimestampServer)&quot; /v &quot;$(TargetPath)&quot;" 
+          ContinueOnError="false" />
+  </Target>
 </Project>
