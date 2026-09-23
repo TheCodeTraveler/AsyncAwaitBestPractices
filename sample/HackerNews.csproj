@@ -47,7 +47,7 @@
     <PackageReference Include="CommunityToolkit.Maui.Markup" Version="8.0.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.101" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
   </ItemGroup>
 
   <ItemGroup>
