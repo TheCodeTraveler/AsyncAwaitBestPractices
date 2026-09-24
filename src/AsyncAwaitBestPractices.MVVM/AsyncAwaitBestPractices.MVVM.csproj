@@ -30,7 +30,7 @@
     </PackageReleaseNotes>
     <Version>$(NuGetVersion)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/brminnick/AsyncAwaitBestPractices</RepositoryUrl>
+    <RepositoryUrl>https://codetraveler.io/asyncawaitbestpractices</RepositoryUrl>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>$(NuGetVersion)</AssemblyVersion>
     <AssemblyFileVersion>$(NuGetVersion)</AssemblyFileVersion>
