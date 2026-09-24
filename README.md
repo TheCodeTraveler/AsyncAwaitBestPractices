@@ -59,6 +59,10 @@ Available on NuGet: https://www.nuget.org/packages/AsyncAwaitBestPractices/
 - Available on NuGet: https://www.nuget.org/packages/AsyncAwaitBestPractices.MVVM/  
 - Add to any project supporting .NET Standard 1.0
 
+## Training and consulting
+
+The author of this library teaches a hands-on async/await and parallel programming workshop for C# teams (taught at NDC London and NDC Oslo in 2026) and offers async audits of production code. Details and pricing: [codetraveler.io/workshops](https://codetraveler.io/workshops/) and [codetraveler.io/dotnet-consulting](https://codetraveler.io/dotnet-consulting/).
+
 ## Why Do I Need This?
 
 ### Online Courses
