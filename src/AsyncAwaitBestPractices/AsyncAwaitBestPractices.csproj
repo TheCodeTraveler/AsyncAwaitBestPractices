@@ -46,7 +46,7 @@
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/brminnick/AsyncAwaitBestPractices</PackageProjectUrl>
+    <PackageProjectUrl>https://codetraveler.io/asyncawaitbestpractices</PackageProjectUrl>
     <DebugType>portable</DebugType>
     <Configurations>Debug;Release</Configurations>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
