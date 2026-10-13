@@ -1,0 +1,223 @@
+# Ported from azure-pipelines.yml.
+# Every action is pinned to the full commit SHA of the release named in its trailing comment.
+# The github-actions ecosystem in .github/dependabot.yml keeps those SHAs and comments up to date.
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# Azure Pipelines `pr: autoCancel: true`: a new push to a pull request cancels that pull request's in-progress run.
+# Pushes to main and tags fall back to the unique run_id, so every CI run completes, as it did in Azure Pipelines.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  CurrentSemanticVersionBase: '99.0.0'
+  # Replaces $[counter(variables['CurrentSemanticVersionBase'], 1001)].
+  # Azure Pipelines' last preview package was 99.0.0-preview1416, so GitHub runs continue at 1417.
+  # Keeping the number at four digits keeps SemVer's lexical ordering of `previewNNNN` correct.
+  PreviewNumberOffset: 1416
+  NET_VERSION: '10.0.x'
+  PathToSolution: 'AsyncAwaitBestPractices.slnx'
+  PathToSampleAppCsproj: 'sample/HackerNews.csproj'
+  PathToUnitTestsCsproj: 'src/AsyncAwaitBestPractices.UnitTests/AsyncAwaitBestPractices.UnitTests.csproj'
+  PathToAsyncAwaitBestPracticesCsproj: 'src/AsyncAwaitBestPractices/AsyncAwaitBestPractices.csproj'
+  PathToAsyncAwaitBestPracticesMVVMCsproj: 'src/AsyncAwaitBestPractices.MVVM/AsyncAwaitBestPractices.MVVM.csproj'
+  Xcode_Version: '27.0'
+
+jobs:
+  build_sample:
+    name: Build .NET MAUI Sample App (${{ matrix.name }})
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 60 # Azure Pipelines' default job timeout (GitHub's default is 360)
+    strategy:
+      fail-fast: false # Azure Pipelines matrix legs never cancel each other
+      matrix:
+        include:
+          - name: Windows
+            image: windows-latest
+          - name: macOS
+            image: xcode-27
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Runs `sudo xcode-select -s` on the matching Xcode and exports MD_APPLE_SDK_ROOT
+      - name: Set Xcode v${{ env.Xcode_Version }}
+        if: runner.os == 'macOS'
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env.Xcode_Version }}
+
+      - name: Download iOS Platform
+        if: runner.os == 'macOS'
+        run: |
+          xcodebuild -downloadPlatform iOS
+
+          echo "Installed Simulator SDKs:"
+          xcodebuild -showsdks
+
+      - name: Use .NET SDK v${{ env.NET_VERSION }}
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: ${{ env.NET_VERSION }}
+          dotnet-quality: 'ga'
+
+      - name: Install .NET MAUI Workload
+        shell: bash
+        run: |
+          dotnet workload install maui
+          dotnet workload update
+
+      - name: Build Sample App
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            # HackerNews.csproj builds iOS for a device (ios-arm64), which requires code signing by default.
+            # This workflow has no Apple certificate or provisioning profile, so the macOS build skips code signing.
+            dotnet build "$PathToSampleAppCsproj" -p:EnableCodeSigning=false
+          else
+            dotnet build "$PathToSampleAppCsproj"
+          fi
+
+  build_test_library:
+    name: Build + Test Library
+    runs-on: windows-latest
+    timeout-minutes: 60 # Azure Pipelines' default job timeout (GitHub's default is 360)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set NuGet Version
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
+            $commitId = $env:PR_HEAD_SHA.Substring(0, 7)
+            $nugetPackageVersion = "$($env:CurrentSemanticVersionBase)-build-$($env:PR_NUMBER).$($env:GITHUB_RUN_NUMBER)+$commitId"
+            Write-Host "GitHub PR = $($env:PR_NUMBER), Commit = $commitId"
+          }
+          else {
+            $previewNumber = [int]$env:PreviewNumberOffset + [int]$env:GITHUB_RUN_NUMBER
+            $nugetPackageVersion = "$($env:CurrentSemanticVersionBase)-preview$previewNumber"
+          }
+
+          Write-Host "NuGet Package Version = $nugetPackageVersion"
+          "NugetPackageVersion=$nugetPackageVersion" >> $env:GITHUB_ENV
+          "NuGet Package Version: ``$nugetPackageVersion``" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Use .NET SDKs 8.0.x, 9.0.x, ${{ env.NET_VERSION }}
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            ${{ env.NET_VERSION }}
+          dotnet-quality: 'ga'
+
+      - name: Run UnitTests
+        run: dotnet test $env:PathToUnitTestsCsproj -c Release --settings ".runsettings" --collect "code coverage" --logger trx --results-directory "$env:RUNNER_TEMP"
+
+      # Replaces PublishTestResults@2. Writes the report to the job summary, so it needs no extra permissions and works on fork and Dependabot pull requests.
+      - name: Publish Test Results
+        if: ${{ !cancelled() }}
+        uses: dorny/test-reporter@d1b5dff021aa968b288b02285a8bf47471c5928a # v3.2.0
+        with:
+          name: Unit Tests
+          path: ${{ runner.temp }}/*.trx
+          path-replace-backslashes: 'true'
+          reporter: dotnet-trx
+          use-actions-summary: 'true'
+          fail-on-error: 'false'
+          fail-on-empty: 'false'
+
+      - name: Upload Test Results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results
+          path: ${{ runner.temp }}/*.trx
+
+      # Replaces PublishCodeCoverageResults@2, which runs the same ReportGenerator engine.
+      # ReportGenerator exits with an error when no coverage file matches, matching failIfCoverageEmpty: true.
+      - name: Generate Code Coverage Report
+        id: code-coverage
+        if: ${{ !cancelled() }}
+        uses: danielpalme/ReportGenerator-GitHub-Action@d3ebf1f760f7d8ab92cc44d9bcfee7ad73722a31 # v5.5.11
+        with:
+          reports: ${{ runner.temp }}/**/coverage.cobertura.xml
+          targetdir: ${{ runner.temp }}/CodeCoverage
+          reporttypes: HtmlInline;MarkdownSummaryGithub
+          toolpath: ${{ runner.temp }}/reportgeneratortool
+
+      - name: Publish Code Coverage Summary
+        if: ${{ !cancelled() && steps.code-coverage.outcome == 'success' }}
+        run: Get-Content -Path "$env:RUNNER_TEMP/CodeCoverage/SummaryGithub.md" | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+
+      - name: Upload Code Coverage Report
+        if: ${{ !cancelled() && steps.code-coverage.outcome == 'success' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: code-coverage-report
+          path: ${{ runner.temp }}/CodeCoverage
+
+      - name: Pack AsyncAwaitBestPractices NuGet
+        run: dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion"
+
+      - name: Pack AsyncAwaitBestPractices.MVVM NuGet
+        run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion"
+
+      # Same pass/fail rule as the Azure Pipelines findstr check, but the `dotnet list` output is now printed instead of swallowed.
+      - name: Check AsyncAwaitBestPractices Dependencies Vulnerabilities
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet list $env:PathToAsyncAwaitBestPracticesCsproj package --vulnerable --include-transitive | Tee-Object -Variable output
+          if ($output -cmatch 'has the following vulnerable packages') { exit 1 }
+          exit 0
+
+      - name: Check AsyncAwaitBestPractices.MVVM Dependencies Vulnerabilities
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet list $env:PathToAsyncAwaitBestPracticesMVVMCsproj package --vulnerable --include-transitive | Tee-Object -Variable output
+          if ($output -cmatch 'has the following vulnerable packages') { exit 1 }
+          exit 0
+
+      - name: Check Sample App Dependencies Vulnerabilities
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet list $env:PathToSampleAppCsproj package --vulnerable --include-transitive | Tee-Object -Variable output
+          if ($output -cmatch 'has the following vulnerable packages') { exit 1 }
+          exit 0
+
+      - name: Copy NuGet Packages to Staging Directory
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          $stagingDirectory = New-Item -ItemType Directory -Force -Path (Join-Path $env:RUNNER_TEMP 'nuget')
+          Get-ChildItem -Path ./src -Recurse | Where-Object { $_.Extension -match 'nupkg' } | Copy-Item -Destination $stagingDirectory.FullName
+
+      - name: Publish NuGet Packages
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: nuget
+          path: ${{ runner.temp }}/nuget
+          if-no-files-found: error
