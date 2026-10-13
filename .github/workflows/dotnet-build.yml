@@ -41,9 +41,9 @@ jobs:
   build_sample:
     name: Build .NET MAUI Sample App (${{ matrix.name }})
     runs-on: ${{ matrix.image }}
-    timeout-minutes: 60 # Azure Pipelines' default job timeout (GitHub's default is 360)
+    timeout-minutes: 60
     strategy:
-      fail-fast: false # Azure Pipelines matrix legs never cancel each other
+      fail-fast: false
       matrix:
         include:
           - name: Windows
@@ -57,7 +57,6 @@ jobs:
         with:
           persist-credentials: false
 
-      # Runs `sudo xcode-select -s` on the matching Xcode and exports MD_APPLE_SDK_ROOT
       - name: Set Xcode v${{ env.Xcode_Version }}
         if: runner.os == 'macOS'
         uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
@@ -98,7 +97,7 @@ jobs:
   build_test_library:
     name: Build + Test Library
     runs-on: windows-latest
-    timeout-minutes: 60 # Azure Pipelines' default job timeout (GitHub's default is 360)
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -137,7 +136,6 @@ jobs:
       - name: Run UnitTests
         run: dotnet test $env:PathToUnitTestsCsproj -c Release --settings ".runsettings" --collect "code coverage" --logger trx --results-directory "$env:RUNNER_TEMP"
 
-      # Replaces PublishTestResults@2. Writes the report to the job summary, so it needs no extra permissions and works on fork and Dependabot pull requests.
       - name: Publish Test Results
         if: ${{ !cancelled() }}
         uses: dorny/test-reporter@d1b5dff021aa968b288b02285a8bf47471c5928a # v3.2.0
@@ -157,8 +155,6 @@ jobs:
           name: test-results
           path: ${{ runner.temp }}/*.trx
 
-      # Replaces PublishCodeCoverageResults@2, which runs the same ReportGenerator engine.
-      # ReportGenerator exits with an error when no coverage file matches, matching failIfCoverageEmpty: true.
       - name: Generate Code Coverage Report
         id: code-coverage
         if: ${{ !cancelled() }}
@@ -186,7 +182,6 @@ jobs:
       - name: Pack AsyncAwaitBestPractices.MVVM NuGet
         run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion"
 
-      # Same pass/fail rule as the Azure Pipelines findstr check, but the `dotnet list` output is now printed instead of swallowed.
       - name: Check AsyncAwaitBestPractices Dependencies Vulnerabilities
         if: ${{ !cancelled() }}
         run: |
