@@ -260,14 +260,14 @@ class Tests_ICommand_AsyncCommand : BaseAsyncCommandTest
 	}
 
 	[Test]
-	public void ICommand_ExecuteAsync_ExceptionHandling_Test()
+	public async Task ICommand_ExecuteAsync_ExceptionHandling_Test()
 	{
 		//Arrange
 		ICommand command = new AsyncCommand(NoParameterImmediateNullReferenceExceptionTask, onException: HandleException);
 		Exception? caughtException = null;
 
 		//Act
-		caughtException = Assert.ThrowsAsync<NullReferenceException>(async () => await ((AsyncCommand)command).ExecuteAsync());
+		caughtException = await Assert.ThrowsAsync<NullReferenceException>(async () => await ((AsyncCommand)command).ExecuteAsync());
 
 		//Assert
 		Assert.That(caughtException, Is.Not.Null);
@@ -276,14 +276,14 @@ class Tests_ICommand_AsyncCommand : BaseAsyncCommandTest
 	}
 
 	[Test]
-	public void ICommand_ExecuteAsync_ExceptionHandlingWithParameter_Test()
+	public async Task ICommand_ExecuteAsync_ExceptionHandlingWithParameter_Test()
 	{
 		//Arrange
 		ICommand command = new AsyncCommand<int>(ParameterImmediateNullReferenceExceptionTask, onException: HandleException);
 		Exception? caughtException = null;
 
 		//Act
-		caughtException = Assert.ThrowsAsync<NullReferenceException>(async () => await ((AsyncCommand<int>)command).ExecuteAsync(0));
+		caughtException = await Assert.ThrowsAsync<NullReferenceException>(async () => await ((AsyncCommand<int>)command).ExecuteAsync(0));
 
 		//Assert
 		Assert.That(caughtException, Is.Not.Null);
