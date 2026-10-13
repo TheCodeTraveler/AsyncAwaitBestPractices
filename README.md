@@ -1,6 +1,6 @@
 # AsyncAwaitBestPractices
 
-[![Build Status](https://brminnick.visualstudio.com/AsyncAwaitBestPractices/_apis/build/status/brminnick.AsyncAwaitBestPractices?branchName=main)](https://brminnick.visualstudio.com/AsyncAwaitBestPractices/_build/latest?definitionId=8&branchName=main)
+[![Build](https://github.com/TheCodeTraveler/AsyncAwaitBestPractices/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/TheCodeTraveler/AsyncAwaitBestPractices/actions/workflows/dotnet-build.yml)
 
 Extensions for `System.Threading.Tasks.Task`.
 
