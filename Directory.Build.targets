@@ -42,4 +42,13 @@
     <Compile Remove="**\net\**\*.cs" />
     <None Include="**\net\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
   </ItemGroup>
+
+  <Target Name="SignAssemblyWithAuthenticode"
+          AfterTargets="Build"
+          Condition="'$(EnableAuthenticodeSigning)' == 'true' and '$(TargetPath)' != ''">
+    <Error Condition="'$(OS)' != 'Windows_NT'" Text="Authenticode signing requires Windows." />
+    <Error Condition="!Exists('$(SignToolPath)')" Text="SignToolPath must point to signtool.exe." />
+    <Error Condition="'$(CodeSigningCertificateThumbprint)' == ''" Text="CodeSigningCertificateThumbprint is required." />
+    <Exec Command="&quot;$(SignToolPath)&quot; sign /sha1 $(CodeSigningCertificateThumbprint) /s My /fd SHA256 /tr https://timestamp.digicert.com /td SHA256 /v &quot;$(TargetPath)&quot;" />
+  </Target>
 </Project>

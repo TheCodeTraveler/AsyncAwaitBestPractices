@@ -98,6 +98,8 @@ jobs:
     name: Build + Test Library
     runs-on: windows-latest
     timeout-minutes: 60
+    env:
+      EnableAuthenticodeSigning: 'true'
 
     steps:
       - name: Checkout
@@ -176,11 +178,104 @@ jobs:
           name: code-coverage-report
           path: ${{ runner.temp }}/CodeCoverage
 
+      - name: Prepare Authenticode Signing Certificate
+        env:
+          CODE_SIGNING_CERTIFICATE_PFX_BASE64: ${{ github.event_name != 'pull_request' && secrets.CODE_SIGNING_CERTIFICATE_PFX_BASE64 || '' }}
+          CODE_SIGNING_CERTIFICATE_PASSWORD: ${{ github.event_name != 'pull_request' && secrets.CODE_SIGNING_CERTIFICATE_PASSWORD || '' }}
+        run: |
+          $signTool = Get-ChildItem -Path "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+            Sort-Object { [version]$_.Directory.Parent.Name } -Descending |
+            Select-Object -First 1
+          if ($null -eq $signTool) {
+            throw "Windows SDK signtool.exe was not found."
+          }
+
+          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
+            $certificate = New-SelfSignedCertificate -Subject 'CN=AsyncAwaitBestPractices CI' -Type CodeSigningCert -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1)
+            $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('My', 'CurrentUser')
+            $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+            try {
+              $store.Add($certificate)
+            }
+            finally {
+              $store.Close()
+            }
+
+            $rootStore = [System.Security.Cryptography.X509Certificates.X509Store]::new('Root', 'CurrentUser')
+            $rootStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+            try {
+              $rootStore.Add($certificate)
+            }
+            finally {
+              $rootStore.Close()
+            }
+          }
+          else {
+            if ([string]::IsNullOrWhiteSpace($env:CODE_SIGNING_CERTIFICATE_PFX_BASE64) -or [string]::IsNullOrWhiteSpace($env:CODE_SIGNING_CERTIFICATE_PASSWORD)) {
+              throw "Set the CODE_SIGNING_CERTIFICATE_PFX_BASE64 and CODE_SIGNING_CERTIFICATE_PASSWORD repository secrets to sign release DLLs."
+            }
+
+            $certificatePath = Join-Path $env:RUNNER_TEMP 'code-signing-certificate.pfx'
+            [System.IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:CODE_SIGNING_CERTIFICATE_PFX_BASE64))
+            try {
+              $password = ConvertTo-SecureString $env:CODE_SIGNING_CERTIFICATE_PASSWORD -AsPlainText -Force
+              $certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(
+                $certificatePath,
+                $password,
+                [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet
+              )
+              $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('My', 'CurrentUser')
+              $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+              try {
+                $store.Add($certificate)
+              }
+              finally {
+                $store.Close()
+              }
+            }
+            finally {
+              Remove-Item -LiteralPath $certificatePath -Force
+            }
+          }
+
+          if ($null -eq $certificate -or -not $certificate.HasPrivateKey) {
+            throw "The code-signing certificate does not contain a private key."
+          }
+
+          "SignToolPath=$($signTool.FullName)" >> $env:GITHUB_ENV
+          "CodeSigningCertificateThumbprint=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
+
       - name: Pack AsyncAwaitBestPractices NuGet
-        run: dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion"
+        run: dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" "-p:EnableAuthenticodeSigning=$env:EnableAuthenticodeSigning" "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
 
       - name: Pack AsyncAwaitBestPractices.MVVM NuGet
-        run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion"
+        run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" "-p:EnableAuthenticodeSigning=$env:EnableAuthenticodeSigning" "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
+
+      - name: Verify Authenticode Signatures in NuGet Packages
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $packages = @(Get-ChildItem -Path ./src -Recurse -Filter *.nupkg | Where-Object { $_.FullName -match '[\\/]bin[\\/]Release[\\/]' })
+          if ($packages.Count -eq 0) {
+            throw "No NuGet packages were produced."
+          }
+
+          foreach ($package in $packages) {
+            $extractPath = Join-Path $env:RUNNER_TEMP ([System.IO.Path]::GetRandomFileName())
+            [System.IO.Compression.ZipFile]::ExtractToDirectory($package.FullName, $extractPath)
+            $assemblies = @(Get-ChildItem -Path (Join-Path $extractPath 'lib') -Recurse -Filter *.dll -ErrorAction SilentlyContinue)
+            if ($assemblies.Count -eq 0) {
+              throw "No library DLLs were found in $($package.Name)."
+            }
+
+            foreach ($assembly in $assemblies) {
+              & $env:SignToolPath verify /pa /all /v $assembly.FullName
+              if ($LASTEXITCODE -ne 0) {
+                throw "Authenticode signature verification failed for $($assembly.FullName)."
+              }
+            }
+
+            Remove-Item -Path $extractPath -Recurse -Force
+          }
 
       - name: Check AsyncAwaitBestPractices Dependencies Vulnerabilities
         if: ${{ !cancelled() }}
