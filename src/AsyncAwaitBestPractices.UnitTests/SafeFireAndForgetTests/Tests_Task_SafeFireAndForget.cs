@@ -145,14 +145,14 @@ class Tests_SafeFireAndForget : BaseTest
 	}
 
 	[Test]
-	public void SafeFireAndForget_ExecuteAsync_ExceptionHandling_Test()
+	public async Task SafeFireAndForget_ExecuteAsync_ExceptionHandling_Test()
 	{
 		//Arrange
 		AsyncCommand command = new AsyncCommand(NoParameterImmediateNullReferenceExceptionTask, onException: HandleException);
 		Exception? caughtException = null;
 
 		//Act
-		caughtException = Assert.ThrowsAsync<NullReferenceException>(async () => await command.ExecuteAsync());
+		caughtException = await Assert.ThrowsAsync<NullReferenceException>(async () => await command.ExecuteAsync());
 
 		//Assert
 		Assert.That(caughtException, Is.Not.Null);
@@ -161,14 +161,14 @@ class Tests_SafeFireAndForget : BaseTest
 	}
 
 	[Test]
-	public void SafeFireAndForget_ExecuteAsync_ExceptionHandlingWithParameter_Test()
+	public async Task SafeFireAndForget_ExecuteAsync_ExceptionHandlingWithParameter_Test()
 	{
 		//Arrange
 		AsyncCommand<int> command = new AsyncCommand<int>(ParameterImmediateNullReferenceExceptionTask, onException: HandleException);
 		Exception? caughtException = null;
 
 		//Act
-		caughtException = Assert.ThrowsAsync<NullReferenceException>(async () => await command.ExecuteAsync(0));
+		caughtException = await Assert.ThrowsAsync<NullReferenceException>(async () => await command.ExecuteAsync(0));
 
 		//Assert
 		Assert.That(caughtException, Is.Not.Null);
