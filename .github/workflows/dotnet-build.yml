@@ -7,11 +7,15 @@ on:
   push:
     branches:
       - main
-    tags:
-      - '**'
   pull_request:
     branches:
       - main
+  # Publishing a GitHub Release builds production NuGet packages versioned from the release tag
+  # and attaches them to the release. Publishing a release also pushes its tag, so this workflow
+  # does not also trigger on tag pushes; that would build every release twice.
+  release:
+    types:
+      - published
 
 permissions:
   contents: read
@@ -109,8 +113,20 @@ jobs:
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
+          if ($env:GITHUB_EVENT_NAME -eq 'release') {
+            # Release tags are the package version, optionally prefixed with `v` (e.g. `v10.1.0` or `10.1.0-pre1`).
+            $nugetPackageVersion = $env:RELEASE_TAG -replace '^v', ''
+            if ($nugetPackageVersion -notmatch '^(\d+\.\d+\.\d+)(-[0-9A-Za-z.-]+)?$') {
+              throw "Release tag '$($env:RELEASE_TAG)' is not a valid NuGet version. Use a tag such as v10.1.0 or v10.1.0-pre1."
+            }
+
+            # AssemblyVersion and AssemblyFileVersion come from the NuGetVersion MSBuild property, which must not contain a prerelease suffix.
+            "ReleaseNuGetVersion=$($Matches[1])" >> $env:GITHUB_ENV
+            Write-Host "GitHub Release Tag = $($env:RELEASE_TAG)"
+          }
+          elseif ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
             $commitId = $env:PR_HEAD_SHA.Substring(0, 7)
             $nugetPackageVersion = "$($env:CurrentSemanticVersionBase)-build-$($env:PR_NUMBER).$($env:GITHUB_RUN_NUMBER)+$commitId"
             Write-Host "GitHub PR = $($env:PR_NUMBER), Commit = $commitId"
@@ -244,10 +260,22 @@ jobs:
           "CodeSigningCertificateThumbprint=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
 
       - name: Pack AsyncAwaitBestPractices NuGet
-        run: dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" -p:EnableAuthenticodeSigning=true "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
+        run: |
+          $packArguments = @("-p:PackageVersion=$env:NugetPackageVersion", '-p:EnableAuthenticodeSigning=true', "-p:SignToolPath=$env:SignToolPath", "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint")
+          if ($env:ReleaseNuGetVersion) {
+            $packArguments += "-p:NuGetVersion=$env:ReleaseNuGetVersion"
+          }
+          dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release @packArguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Pack AsyncAwaitBestPractices.MVVM NuGet
-        run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" -p:EnableAuthenticodeSigning=true "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
+        run: |
+          $packArguments = @("-p:PackageVersion=$env:NugetPackageVersion", '-p:EnableAuthenticodeSigning=true', "-p:SignToolPath=$env:SignToolPath", "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint")
+          if ($env:ReleaseNuGetVersion) {
+            $packArguments += "-p:NuGetVersion=$env:ReleaseNuGetVersion"
+          }
+          dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release @packArguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Verify Authenticode Signatures in NuGet Packages
         run: |
@@ -297,15 +325,38 @@ jobs:
           exit 0
 
       - name: Copy NuGet Packages to Staging Directory
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         run: |
           $stagingDirectory = New-Item -ItemType Directory -Force -Path (Join-Path $env:RUNNER_TEMP 'nuget')
           Get-ChildItem -Path ./src -Recurse | Where-Object { $_.Extension -match 'nupkg' } | Copy-Item -Destination $stagingDirectory.FullName
 
       - name: Publish NuGet Packages
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: nuget
           path: ${{ runner.temp }}/nuget
           if-no-files-found: error
+
+  attach_release_assets:
+    name: Attach NuGet Packages to GitHub Release
+    if: ${{ github.event_name == 'release' }}
+    needs:
+      - build_sample
+      - build_test_library
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Only this job can write to the repository, and it runs no build tools or third-party actions besides artifact download.
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download NuGet Packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: nuget
+          path: ${{ runner.temp }}/nuget
+
+      - name: Upload NuGet Packages to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" "$RUNNER_TEMP"/nuget/*.nupkg "$RUNNER_TEMP"/nuget/*.snupkg --repo "$GITHUB_REPOSITORY" --clobber
