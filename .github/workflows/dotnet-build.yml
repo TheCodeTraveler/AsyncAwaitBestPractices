@@ -102,6 +102,12 @@ jobs:
     name: Build + Test Library
     runs-on: windows-latest
     timeout-minutes: 60
+    # Release runs sign the library DLLs with Azure Artifact Signing. Azure only trusts GitHub's OIDC token
+    # from the `release` environment, so pull requests and pushes to main build and pack unsigned DLLs.
+    environment: ${{ github.event_name == 'release' && 'release' || '' }}
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout
@@ -192,92 +198,87 @@ jobs:
           name: code-coverage-report
           path: ${{ runner.temp }}/CodeCoverage
 
-      - name: Prepare Authenticode Signing Certificate
-        env:
-          CODE_SIGNING_CERTIFICATE_PFX_BASE64: ${{ github.event_name != 'pull_request' && secrets.CODE_SIGNING_CERTIFICATE_PFX_BASE64 || '' }}
-          CODE_SIGNING_CERTIFICATE_PASSWORD: ${{ github.event_name != 'pull_request' && secrets.CODE_SIGNING_CERTIFICATE_PASSWORD || '' }}
+      # Building, signing, and packing are separate steps so the DLLs are signed after they are built and
+      # `dotnet pack --no-build` packages those signed DLLs instead of rebuilding them.
+      - name: Build AsyncAwaitBestPractices + AsyncAwaitBestPractices.MVVM
         run: |
-          $signTool = Get-ChildItem -Path "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
-            Sort-Object { [version]$_.Directory.Parent.Name } -Descending |
-            Select-Object -First 1
-          if ($null -eq $signTool) {
-            throw "Windows SDK signtool.exe was not found."
-          }
-
-          if ($env:GITHUB_EVENT_NAME -eq 'pull_request') {
-            $certificate = New-SelfSignedCertificate -Subject 'CN=AsyncAwaitBestPractices CI' -Type CodeSigningCert -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1)
-            $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('My', 'CurrentUser')
-            $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-            try {
-              $store.Add($certificate)
-            }
-            finally {
-              $store.Close()
-            }
-
-            $rootStore = [System.Security.Cryptography.X509Certificates.X509Store]::new('Root', 'CurrentUser')
-            $rootStore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-            try {
-              $rootStore.Add($certificate)
-            }
-            finally {
-              $rootStore.Close()
-            }
-          }
-          else {
-            if ([string]::IsNullOrWhiteSpace($env:CODE_SIGNING_CERTIFICATE_PFX_BASE64) -or [string]::IsNullOrWhiteSpace($env:CODE_SIGNING_CERTIFICATE_PASSWORD)) {
-              throw "Set the CODE_SIGNING_CERTIFICATE_PFX_BASE64 and CODE_SIGNING_CERTIFICATE_PASSWORD repository secrets to sign release DLLs."
-            }
-
-            $certificatePath = Join-Path $env:RUNNER_TEMP 'code-signing-certificate.pfx'
-            [System.IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:CODE_SIGNING_CERTIFICATE_PFX_BASE64))
-            try {
-              $password = ConvertTo-SecureString $env:CODE_SIGNING_CERTIFICATE_PASSWORD -AsPlainText -Force
-              $certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(
-                $certificatePath,
-                $password,
-                [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet
-              )
-              $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('My', 'CurrentUser')
-              $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-              try {
-                $store.Add($certificate)
-              }
-              finally {
-                $store.Close()
-              }
-            }
-            finally {
-              Remove-Item -LiteralPath $certificatePath -Force
-            }
-          }
-
-          if ($null -eq $certificate -or -not $certificate.HasPrivateKey) {
-            throw "The code-signing certificate does not contain a private key."
-          }
-
-          "SignToolPath=$($signTool.FullName)" >> $env:GITHUB_ENV
-          "CodeSigningCertificateThumbprint=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
-
-      - name: Pack AsyncAwaitBestPractices NuGet
-        run: |
-          $packArguments = @("-p:PackageVersion=$env:NugetPackageVersion", '-p:EnableAuthenticodeSigning=true', "-p:SignToolPath=$env:SignToolPath", "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint")
+          $buildArguments = @('-c', 'Release', "-p:PackageVersion=$env:NugetPackageVersion")
           if ($env:ReleaseNuGetVersion) {
-            $packArguments += "-p:NuGetVersion=$env:ReleaseNuGetVersion"
+            $buildArguments += "-p:NuGetVersion=$env:ReleaseNuGetVersion"
           }
-          dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release @packArguments
+
+          dotnet build $env:PathToAsyncAwaitBestPracticesCsproj @buildArguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build $env:PathToAsyncAwaitBestPracticesMVVMCsproj @buildArguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Pack AsyncAwaitBestPractices.MVVM NuGet
+      - name: Check Azure Artifact Signing Configuration
+        if: ${{ github.event_name == 'release' }}
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARTIFACT_SIGNING_ENDPOINT: ${{ vars.ARTIFACT_SIGNING_ENDPOINT }}
+          ARTIFACT_SIGNING_ACCOUNT_NAME: ${{ vars.ARTIFACT_SIGNING_ACCOUNT_NAME }}
+          ARTIFACT_SIGNING_CERTIFICATE_PROFILE_NAME: ${{ vars.ARTIFACT_SIGNING_CERTIFICATE_PROFILE_NAME }}
         run: |
-          $packArguments = @("-p:PackageVersion=$env:NugetPackageVersion", '-p:EnableAuthenticodeSigning=true', "-p:SignToolPath=$env:SignToolPath", "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint")
+          $missing = @('AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID', 'ARTIFACT_SIGNING_ENDPOINT', 'ARTIFACT_SIGNING_ACCOUNT_NAME', 'ARTIFACT_SIGNING_CERTIFICATE_PROFILE_NAME') |
+            Where-Object { [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) }
+          if ($missing) {
+            throw "Add these secrets/variables to the 'release' environment (Settings > Environments > release): $($missing -join ', ')"
+          }
+
+      - name: Find Library DLLs to Sign
+        id: files-to-sign
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          $files = @(
+            Get-ChildItem -Path 'src/AsyncAwaitBestPractices/bin/Release/*/AsyncAwaitBestPractices.dll'
+            Get-ChildItem -Path 'src/AsyncAwaitBestPractices.MVVM/bin/Release/*/AsyncAwaitBestPractices.MVVM.dll'
+          )
+          if ($files.Count -eq 0) {
+            throw "No library DLLs were found to sign."
+          }
+
+          $files.FullName | ForEach-Object { Write-Host $_ }
+          "files<<EOF" >> $env:GITHUB_OUTPUT
+          $files.FullName >> $env:GITHUB_OUTPUT
+          "EOF" >> $env:GITHUB_OUTPUT
+
+      - name: Sign In to Azure
+        if: ${{ github.event_name == 'release' }}
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign Library DLLs with Azure Artifact Signing
+        if: ${{ github.event_name == 'release' }}
+        uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
+        with:
+          endpoint: ${{ vars.ARTIFACT_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ vars.ARTIFACT_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ vars.ARTIFACT_SIGNING_CERTIFICATE_PROFILE_NAME }}
+          files: ${{ steps.files-to-sign.outputs.files }}
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Pack AsyncAwaitBestPractices + AsyncAwaitBestPractices.MVVM NuGets
+        run: |
+          $packArguments = @('-c', 'Release', '--no-build', "-p:PackageVersion=$env:NugetPackageVersion")
           if ($env:ReleaseNuGetVersion) {
             $packArguments += "-p:NuGetVersion=$env:ReleaseNuGetVersion"
           }
-          dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release @packArguments
+
+          dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj @packArguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj @packArguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Verify Authenticode Signatures in NuGet Packages
+        if: ${{ github.event_name == 'release' }}
         run: |
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $packages = @(Get-ChildItem -Path ./src -Recurse -Filter *.nupkg | Where-Object { $_.FullName -match '[\\/]bin[\\/]Release[\\/]' })
@@ -294,9 +295,13 @@ jobs:
             }
 
             foreach ($assembly in $assemblies) {
-              & $env:SignToolPath verify /pa /all /v $assembly.FullName
-              if ($LASTEXITCODE -ne 0) {
-                throw "Authenticode signature verification failed for $($assembly.FullName)."
+              $signature = Get-AuthenticodeSignature -FilePath $assembly.FullName
+              Write-Host "$($package.Name) $($assembly.FullName.Substring($extractPath.Length)): $($signature.Status) ($($signature.SignerCertificate.Subject))"
+              if ($signature.Status -ne 'Valid') {
+                throw "Authenticode signature verification failed for $($assembly.FullName): $($signature.StatusMessage)"
+              }
+              if ($null -eq $signature.TimeStamperCertificate) {
+                throw "The Authenticode signature for $($assembly.FullName) is not timestamped."
               }
             }
 
