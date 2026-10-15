@@ -98,8 +98,6 @@ jobs:
     name: Build + Test Library
     runs-on: windows-latest
     timeout-minutes: 60
-    env:
-      EnableAuthenticodeSigning: 'true'
 
     steps:
       - name: Checkout
@@ -246,10 +244,10 @@ jobs:
           "CodeSigningCertificateThumbprint=$($certificate.Thumbprint)" >> $env:GITHUB_ENV
 
       - name: Pack AsyncAwaitBestPractices NuGet
-        run: dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" "-p:EnableAuthenticodeSigning=$env:EnableAuthenticodeSigning" "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
+        run: dotnet pack $env:PathToAsyncAwaitBestPracticesCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" -p:EnableAuthenticodeSigning=true "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
 
       - name: Pack AsyncAwaitBestPractices.MVVM NuGet
-        run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" "-p:EnableAuthenticodeSigning=$env:EnableAuthenticodeSigning" "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
+        run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion" -p:EnableAuthenticodeSigning=true "-p:SignToolPath=$env:SignToolPath" "-p:CodeSigningCertificateThumbprint=$env:CodeSigningCertificateThumbprint"
 
       - name: Verify Authenticode Signatures in NuGet Packages
         run: |
