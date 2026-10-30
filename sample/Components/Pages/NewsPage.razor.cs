@@ -51,7 +51,7 @@ public abstract partial class NewsPage : ComponentBase, IDisposable
 
 	protected abstract Task RefreshAsync();
 
-	protected bool IsDataRecent(TimeSpan timeSpan) => TopStoryCollection.Any()
+	protected bool IsDataRecent(TimeSpan timeSpan) => TopStoryCollection.Count >= StoriesConstants.NumberOfStories
 		&& (DateTimeOffset.UtcNow - TopStoryCollection.Max(x => x.CreatedAt_DateTimeOffset)) < timeSpan;
 
 	protected virtual void Dispose(bool disposing)
