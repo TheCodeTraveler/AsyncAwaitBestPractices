@@ -29,17 +29,19 @@ env:
   # Azure Pipelines' last preview package was 99.0.0-preview1416, so GitHub runs continue at 1417.
   # Keeping the number at four digits keeps SemVer's lexical ordering of `previewNNNN` correct.
   PreviewNumberOffset: 1416
-  NET_VERSION: '10.0.x'
+  # global.json pins the .NET 11 SDK, which builds everything; the unit tests also need the .NET 8, 9 and 10 runtimes
+  NET_VERSION: '11.0.x'
+  # .NET 11 is a release candidate until GA, and after GA the 'preview' feed stays on the last RC (as the 8.0, 9.0 and 10.0 feeds do), so switch to 'ga' together with global.json
+  NET_QUALITY: 'preview'
   PathToSolution: 'AsyncAwaitBestPractices.slnx'
   PathToSampleAppCsproj: 'sample/HackerNews.csproj'
   PathToUnitTestsCsproj: 'src/AsyncAwaitBestPractices.UnitTests/AsyncAwaitBestPractices.UnitTests.csproj'
   PathToAsyncAwaitBestPracticesCsproj: 'src/AsyncAwaitBestPractices/AsyncAwaitBestPractices.csproj'
   PathToAsyncAwaitBestPracticesMVVMCsproj: 'src/AsyncAwaitBestPractices.MVVM/AsyncAwaitBestPractices.MVVM.csproj'
-  Xcode_Version: 'latest-stable'
 
 jobs:
   build_sample:
-    name: Build .NET MAUI Sample App (${{ matrix.name }})
+    name: Build Blazor Sample App (${{ matrix.name }})
     runs-on: ${{ matrix.image }}
     timeout-minutes: 60
     strategy:
@@ -49,7 +51,7 @@ jobs:
           - name: Windows
             image: windows-latest
           - name: macOS
-            image: xcode-27
+            image: macos-latest
 
     steps:
       - name: Checkout
@@ -57,42 +59,23 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set Xcode v${{ env.Xcode_Version }}
-        if: runner.os == 'macOS'
-        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
-        with:
-          xcode-version: ${{ env.Xcode_Version }}
-
-      - name: Download iOS Platform
-        if: runner.os == 'macOS'
-        run: |
-          xcodebuild -downloadPlatform iOS
-
-          echo "Installed Simulator SDKs:"
-          xcodebuild -showsdks
-
       - name: Use .NET SDK v${{ env.NET_VERSION }}
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: ${{ env.NET_VERSION }}
-          dotnet-quality: 'ga'
-
-      - name: Install .NET MAUI Workload
-        shell: bash
-        run: |
-          dotnet workload install maui
-          dotnet workload update
+          dotnet-quality: ${{ env.NET_QUALITY }}
 
       - name: Build Sample App
         shell: bash
+        run: dotnet build "$PathToSampleAppCsproj"
+
+      # bash on GitHub runners runs with pipefail, so a failing `dotnet list` fails the step
+      - name: Check Sample App Dependencies Vulnerabilities
+        if: ${{ !cancelled() }}
+        shell: bash
         run: |
-          if [ "$RUNNER_OS" = "macOS" ]; then
-            # HackerNews.csproj builds iOS for a device (ios-arm64), which requires code signing by default.
-            # This workflow has no Apple certificate or provisioning profile, so the macOS build skips code signing.
-            dotnet build "$PathToSampleAppCsproj" -p:EnableCodeSigning=false
-          else
-            dotnet build "$PathToSampleAppCsproj"
-          fi
+          dotnet list "$PathToSampleAppCsproj" package --vulnerable --include-transitive | tee "$RUNNER_TEMP/vulnerable-packages.txt"
+          if grep -q 'has the following vulnerable packages' "$RUNNER_TEMP/vulnerable-packages.txt"; then exit 1; fi
 
   build_test_library:
     name: Build + Test Library
@@ -124,14 +107,21 @@ jobs:
           "NugetPackageVersion=$nugetPackageVersion" >> $env:GITHUB_ENV
           "NuGet Package Version: ``$nugetPackageVersion``" >> $env:GITHUB_STEP_SUMMARY
 
-      - name: Use .NET SDKs 8.0.x, 9.0.x, ${{ env.NET_VERSION }}
+      # The unit tests run on these three runtimes; each SDK brings its runtime
+      - name: Use .NET SDKs 8.0.x, 9.0.x, 10.0.x
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             8.0.x
             9.0.x
-            ${{ env.NET_VERSION }}
+            10.0.x
           dotnet-quality: 'ga'
+
+      - name: Use .NET SDK v${{ env.NET_VERSION }}
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: ${{ env.NET_VERSION }}
+          dotnet-quality: ${{ env.NET_QUALITY }}
 
       - name: Run UnitTests
         run: dotnet test $env:PathToUnitTestsCsproj -c Release --settings ".runsettings" --collect "code coverage" --logger trx --results-directory "$env:RUNNER_TEMP"
@@ -193,13 +183,6 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           dotnet list $env:PathToAsyncAwaitBestPracticesMVVMCsproj package --vulnerable --include-transitive | Tee-Object -Variable output
-          if ($output -cmatch 'has the following vulnerable packages') { exit 1 }
-          exit 0
-
-      - name: Check Sample App Dependencies Vulnerabilities
-        if: ${{ !cancelled() }}
-        run: |
-          dotnet list $env:PathToSampleAppCsproj package --vulnerable --include-transitive | Tee-Object -Variable output
           if ($output -cmatch 'has the following vulnerable packages') { exit 1 }
           exit 0
 

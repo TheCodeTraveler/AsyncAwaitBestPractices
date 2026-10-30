@@ -1,0 +1,76 @@
+@* No @page here: Bad and Good each derive from this markup and add their own route *@
+
+<PageTitle>Top Stories (@PracticesName)</PageTitle>
+
+<div class="hn">
+    <header class="hn-bar">
+        <span class="hn-logo" aria-hidden="true">Y</span>
+        <span class="hn-name">Hacker News</span>
+        <nav class="hn-links" aria-label="Sections">
+            <span class="hn-link current">top</span>
+            <span class="hn-link">new</span>
+            <span class="hn-link">ask</span>
+            <span class="hn-link">show</span>
+        </nav>
+
+        <span class="hn-count" aria-live="polite"><strong>@TopStoryCollection.Count</strong> of @StoriesConstants.NumberOfStories stories loaded</span>
+
+        <button class="refresh-button" type="button" disabled="@IsListRefreshing" @onclick="RefreshAsync">
+            <span class="refresh-icon" aria-hidden="true"></span>
+            @(IsListRefreshing ? "Refreshing" : "Refresh")
+        </button>
+    </header>
+
+    <div class="hn-body">
+        <h1 class="visually-hidden">Top stories</h1>
+
+        @if (RefreshErrorMessage is not null)
+        {
+            <div class="error-panel" role="alert">
+                <strong>Refresh failed</strong>
+                <p>@RefreshErrorMessage</p>
+            </div>
+        }
+
+        @if (TopStoryCollection.Count is 0 && IsListRefreshing)
+        {
+            <div class="story-list loading-list" aria-label="Loading top stories" aria-busy="true">
+                @for (var index = 0; index < 8; index++)
+                {
+                    <div class="story-card skeleton-card">
+                        <span class="story-rank">@(index + 1).</span>
+                        <div class="story-content">
+                            <span class="skeleton-line title-line"></span>
+                            <span class="skeleton-line meta-line"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="story-list" aria-live="polite">
+                @for (var index = 0; index < TopStoryCollection.Count; index++)
+                {
+                    var story = TopStoryCollection[index];
+
+                    <article class="story-card" @key="story.Id">
+                        <span class="story-rank">@(index + 1).</span>
+                        <div class="story-content">
+                            @if (string.IsNullOrWhiteSpace(story.Url))
+                            {
+                                <span class="story-title">@story.Title</span>
+                            }
+                            else
+                            {
+                                <a class="story-title" href="@story.Url" target="_blank" rel="noopener noreferrer">@story.Title</a>
+                            }
+
+                            <p class="story-meta">@story.Description</p>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -14,18 +14,9 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.x'
-          dotnet-quality: 'ga'
-
-      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
-        with:
-          distribution: 'microsoft'
-          java-version: '21'
-
-      - name: Install .NET MAUI Workload
-        run: |
-          dotnet workload install maui
-          dotnet workload update
+          dotnet-version: '11.0.x'
+          # .NET 11 is a release candidate until GA, and after GA the 'preview' feed stays on the last RC (as the 8.0, 9.0 and 10.0 feeds do), so switch to 'ga' together with global.json
+          dotnet-quality: 'preview'
 
       - name: Build solution
         run: dotnet build AsyncAwaitBestPractices.slnx
@@ -34,8 +25,10 @@ jobs:
       # Roslyn's "Add [Obsolete]" code fix, which adds the [Obsolete] attribute to every member that
       # uses or overrides an obsolete API (see https://github.com/dotnet/format/issues/1230).
       # Excluding them here only affects `dotnet format`; `dotnet build` still reports these warnings.
+      # The Bad page is excluded because it is the starting point of the talk's live coding,
+      # and `dotnet format` would apply the CA2016 code fix to it.
       - name: Run dotnet format
-        run: dotnet format samples/CommunityToolkit.Maui.Sample.slnx --exclude-diagnostics CS0612 CS0618 CS0672 CS1062 CS1064
+        run: dotnet format AsyncAwaitBestPractices.slnx --exclude-diagnostics CS0612 CS0618 CS0672 CS1062 CS1064 --exclude sample/Components/Pages/NewsPage_BadAsyncAwaitPractices.cs
 
       - name: Check for changes
         id: format

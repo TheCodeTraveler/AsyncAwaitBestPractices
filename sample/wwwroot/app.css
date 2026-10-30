@@ -1,0 +1,275 @@
+:root {
+	--hn-orange: #ff6600;
+	--hn-beige: #f6f6ef;
+	--hn-ink: #000000;
+	--hn-muted: #828282;
+	color-scheme: light;
+	font-family: Verdana, Geneva, sans-serif;
+	background: #e9e9e2;
+	color: var(--hn-ink);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	overflow-x: clip;
+	background: #e9e9e2;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.demo-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 16px;
+	width: min(980px, 100% - 32px);
+	margin: 10px auto 0;
+	color: var(--hn-muted);
+	font-size: 0.78rem;
+}
+
+.demo-links {
+	display: flex;
+	gap: 12px;
+}
+
+.demo-link {
+	color: var(--hn-ink);
+}
+
+.demo-link.active {
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.demo-runtime {
+	margin-left: auto;
+}
+
+.app-pane {
+	padding: 8px 16px 40px;
+}
+
+.hn {
+	width: min(980px, 100%);
+	margin: 0 auto;
+	background: var(--hn-beige);
+}
+
+.hn-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 10px;
+	padding: 4px 8px;
+	background: var(--hn-orange);
+	font-size: 0.82rem;
+}
+
+.hn-logo {
+	display: grid;
+	place-items: center;
+	width: 20px;
+	height: 20px;
+	border: 1px solid #fff;
+	color: #fff;
+	font-weight: 700;
+}
+
+.hn-name {
+	font-weight: 700;
+}
+
+.hn-links {
+	display: flex;
+	gap: 4px;
+}
+
+.hn-link + .hn-link::before {
+	content: "| ";
+}
+
+.hn-link.current {
+	color: #fff;
+}
+
+.hn-count {
+	margin-left: auto;
+}
+
+.refresh-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 2px 10px;
+	border: 1px solid rgb(0 0 0 / 35%);
+	border-radius: 2px;
+	background: var(--hn-beige);
+	color: var(--hn-ink);
+	font: inherit;
+	cursor: pointer;
+}
+
+.refresh-button:hover:not(:disabled) {
+	background: #fff;
+}
+
+.refresh-button:disabled {
+	cursor: progress;
+	opacity: 0.75;
+}
+
+.refresh-icon {
+	width: 11px;
+	height: 11px;
+	border: 2px solid currentcolor;
+	border-left-color: transparent;
+	border-radius: 50%;
+}
+
+.refresh-button:disabled .refresh-icon {
+	animation: spin 900ms linear infinite;
+}
+
+.hn-body {
+	padding: 10px 8px 24px;
+}
+
+.story-list {
+	display: grid;
+	gap: 6px;
+}
+
+.story-card {
+	display: grid;
+	grid-template-columns: 34px 1fr;
+	gap: 4px;
+	align-items: baseline;
+}
+
+.story-rank {
+	color: var(--hn-muted);
+	font-size: 0.86rem;
+	text-align: right;
+}
+
+.story-content {
+	min-width: 0;
+}
+
+.story-title {
+	color: var(--hn-ink);
+	font-size: 0.9rem;
+	line-height: 1.35;
+	text-decoration: none;
+}
+
+.story-title:visited {
+	color: var(--hn-muted);
+}
+
+.story-title:hover {
+	text-decoration: underline;
+}
+
+.story-meta {
+	margin: 2px 0 0;
+	color: var(--hn-muted);
+	font-size: 0.7rem;
+}
+
+.error-panel {
+	margin: 0 0 12px;
+	padding: 8px 10px;
+	border: 1px solid #cc4b24;
+	background: #fff4ee;
+	color: #7f1d1d;
+	font-size: 0.82rem;
+}
+
+.error-panel p {
+	margin: 4px 0 0;
+	line-height: 1.45;
+}
+
+.skeleton-card {
+	pointer-events: none;
+}
+
+.skeleton-line {
+	display: block;
+	height: 11px;
+	border-radius: 2px;
+	background: linear-gradient(90deg, #e2e2d8, #fbfbf6, #e2e2d8);
+	background-size: 220% 100%;
+	animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.title-line {
+	width: min(560px, 80%);
+	height: 13px;
+}
+
+.meta-line {
+	width: min(300px, 50%);
+	margin-top: 5px;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: 120% 0;
+	}
+
+	100% {
+		background-position: -120% 0;
+	}
+}
+
+/* Blazor shows this bar when a circuit hits an unhandled exception, for example from async void */
+
+#blazor-error-ui {
+	display: none;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	z-index: 1000;
+	width: 100%;
+	padding: 0.6rem 1.25rem 0.7rem;
+	background: lightyellow;
+	box-shadow: 0 -1px 2px rgb(0 0 0 / 20%);
+	color-scheme: light only;
+}
+
+#blazor-error-ui .dismiss {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.75rem;
+	cursor: pointer;
+}
+
+@media (max-width: 860px) {
+	.app-pane {
+		padding: 8px 0 40px;
+	}
+
+	.hn-count {
+		margin-left: 0;
+	}
+}

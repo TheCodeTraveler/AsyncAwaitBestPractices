@@ -2,14 +2,14 @@
 
 namespace HackerNews;
 
-record StoryModel(
+public record StoryModel(
 		[property: JsonPropertyName("by")] string Author,
 		[property: JsonPropertyName("id")] long Id,
 		[property: JsonPropertyName("score")] int Score,
 		[property: JsonPropertyName("time")] long CreatedAt_UnixTime,
 		[property: JsonPropertyName("title")] string Title,
 		[property: JsonPropertyName("type")] string Type,
-		[property: JsonPropertyName("url")] string Url)
+		[property: JsonPropertyName("url")] string? Url)
 {
 	public DateTimeOffset CreatedAt_DateTimeOffset { get; } = DateTimeOffset.FromUnixTimeSeconds(CreatedAt_UnixTime);
 
