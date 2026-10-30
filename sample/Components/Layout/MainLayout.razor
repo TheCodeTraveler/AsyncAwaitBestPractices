@@ -1,0 +1,22 @@
+@inherits LayoutComponentBase
+@using System.Runtime.InteropServices
+
+<div class="demo-bar">
+    <nav class="demo-links" aria-label="Sample versions">
+        <NavLink class="demo-link" href="" Match="NavLinkMatch.All">Bad async/await</NavLink>
+        <NavLink class="demo-link" href="good" Match="NavLinkMatch.All">Good async/await</NavLink>
+    </nav>
+
+    <span class="demo-runtime">@RuntimeInformation.FrameworkDescription · Runtime async: <strong>@(RuntimeAsyncStatus.IsEnabled ? "on" : "off")</strong></span>
+</div>
+
+<main class="app-pane">
+    @Body
+</main>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    @* Unlike the template's span, a button can be reached and pressed from the keyboard; blazor.web.js finds it by the dismiss class, whatever the element *@
+    <button type="button" class="dismiss" aria-label="Dismiss">&#x1F5D9;</button>
+</div>

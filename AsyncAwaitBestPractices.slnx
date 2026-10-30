@@ -1,8 +1,6 @@
 <Solution>
   <Configurations>
     <Platform Name="Any CPU" />
-    <Platform Name="iPhone" />
-    <Platform Name="iPhoneSimulator" />
   </Configurations>
   <Folder Name="/Sample/">
     <Project Path="sample/HackerNews.csproj" />
@@ -10,7 +8,6 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
-    <File Path="Directory.Build.targets" />
     <File Path="global.json" />
   </Folder>
   <Folder Name="/Tests/">

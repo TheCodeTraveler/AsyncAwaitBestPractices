@@ -1,6 +1,6 @@
 ﻿namespace HackerNews;
 
-class HackerNewsAPIService(IHackerNewsAPI hackerNewsClient)
+public class HackerNewsAPIService(IHackerNewsAPI hackerNewsClient)
 {
 	readonly IHackerNewsAPI _hackerNewsClient = hackerNewsClient;
 

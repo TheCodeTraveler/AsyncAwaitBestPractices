@@ -1,8 +1,13 @@
 {
   "profiles": {
-    "Windows Machine": {
+    "HackerNews": {
       "commandName": "Project",
-      "nativeDebugging": false
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5001",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }
