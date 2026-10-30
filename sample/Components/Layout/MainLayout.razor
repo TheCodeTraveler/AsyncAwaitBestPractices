@@ -17,5 +17,6 @@
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
-    <span class="dismiss">&#x1F5D9;</span>
+    @* Unlike the template's span, a button can be reached and pressed from the keyboard; blazor.web.js finds it by the dismiss class, whatever the element *@
+    <button type="button" class="dismiss" aria-label="Dismiss">&#x1F5D9;</button>
 </div>

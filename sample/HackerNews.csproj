@@ -6,8 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
 
-    <!-- Runtime async for this app only: a NuGet package, like the libraries in src/, should stay classic in .NET 11, because Blazor WebAssembly runs on Mono and can't run runtime-async code.
-         Roslyn needs the exact value "on", and the append form keeps any compiler feature set earlier. -->
     <Features>$(Features);runtime-async=on</Features>
   </PropertyGroup>
 

@@ -2,7 +2,7 @@
 	--hn-orange: #ff6600;
 	--hn-beige: #f6f6ef;
 	--hn-ink: #000000;
-	--hn-muted: #828282;
+	--hn-muted: #666666;
 	color-scheme: light;
 	font-family: Verdana, Geneva, sans-serif;
 	background: #e9e9e2;
@@ -107,7 +107,7 @@ body {
 }
 
 .hn-link.current {
-	color: #fff;
+	font-weight: 700;
 }
 
 .hn-count {
@@ -261,6 +261,11 @@ body {
 	position: absolute;
 	top: 0.5rem;
 	right: 0.75rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
 	cursor: pointer;
 }
 
