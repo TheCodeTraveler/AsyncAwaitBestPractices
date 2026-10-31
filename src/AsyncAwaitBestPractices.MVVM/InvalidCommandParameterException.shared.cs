@@ -48,8 +48,8 @@ public class InvalidCommandParameterException : Exception
 
 	}
 
-	static string CreateErrorMessage(Type expectedType) => expectedType is null 
-		? throw new ArgumentNullException(nameof(expectedType)) 
+	static string CreateErrorMessage(Type expectedType) => expectedType is null
+		? throw new ArgumentNullException(nameof(expectedType))
 		: $"Invalid type for parameter. Expected Type {expectedType}";
 
 	static string CreateErrorMessage(Type expectedType, Type actualType)
@@ -59,7 +59,7 @@ public class InvalidCommandParameterException : Exception
 
 		if (actualType is null)
 			throw new ArgumentNullException(nameof(actualType));
-		
+
 		return $"Invalid type for parameter. Expected Type {expectedType}, but received Type {actualType}";
 	}
 }

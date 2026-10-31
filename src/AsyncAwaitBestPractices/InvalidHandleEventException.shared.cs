@@ -20,9 +20,9 @@ public class InvalidHandleEventException : Exception
 	{
 		if (message is null)
 			throw new ArgumentNullException(nameof(message));
-		
-		if(targetParameterCountException is null)
+
+		if (targetParameterCountException is null)
 			throw new ArgumentNullException(nameof(targetParameterCountException));
 	}
-	
+
 }

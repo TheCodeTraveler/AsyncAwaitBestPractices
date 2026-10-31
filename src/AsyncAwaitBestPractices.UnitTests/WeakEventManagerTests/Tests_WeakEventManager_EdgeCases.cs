@@ -104,7 +104,7 @@ class Tests_WeakEventManager_EdgeCases : BaseTest
 		var weakEventManager = new WeakEventManager();
 		var target = new TestEventTarget();
 		EventHandler handler = target.HandleEvent;
-		
+
 		weakEventManager.AddEventHandler(handler);
 
 		//Act
