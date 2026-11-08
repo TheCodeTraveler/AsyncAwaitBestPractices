@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;netstandard2.0;netstandard2.1;net8.0;net9.0;$(LatestSupportedTFM)</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard2.0;netstandard2.1;net8.0;net9.0;net10.0;$(LatestSupportedTFM)</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);$(LatestSupportedTFM)-windows</TargetFrameworks>
     <IsAotCompatible Condition="$(TargetFramework.StartsWith('netstandard')) == false">true</IsAotCompatible>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>AsyncAwaitBestPracticesMVVM.snk</AssemblyOriginatorKeyFile>
@@ -26,11 +27,13 @@
     </Description>
     <PackageReleaseNotes>
       New in this release:
-      - Add support for .NET 10
+      - Add support for .NET 11
+      - Breaking change: the InvalidCommandParameterException constructors now throw ArgumentNullException for a null expected type or actual type, and the (Type, Exception) constructor for a null inner exception
+      - Assembly version is now 11.0.0.0: .NET Framework apps may need binding redirects, as with every major release
     </PackageReleaseNotes>
     <Version>$(NuGetVersion)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://codetraveler.io/asyncawaitbestpractices</RepositoryUrl>
+    <RepositoryUrl>https://github.com/TheCodeTraveler/AsyncAwaitBestPractices</RepositoryUrl>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>$(NuGetVersion)</AssemblyVersion>
     <AssemblyFileVersion>$(NuGetVersion)</AssemblyFileVersion>
@@ -44,7 +47,7 @@
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/brminnick/AsyncAwaitBestPractices</PackageProjectUrl>
+    <PackageProjectUrl>https://codetraveler.io/asyncawaitbestpractices</PackageProjectUrl>
     <DebugType>portable</DebugType>
     <Configurations>Debug;Release</Configurations>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

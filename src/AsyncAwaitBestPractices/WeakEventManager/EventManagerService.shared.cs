@@ -76,7 +76,13 @@ static class EventManagerService
 					eventHandler.Invoke(instance, [sender, eventArgs]);
 				}
 #else
-				if (eventHandler.IsLightweightMethod())
+				// .NET 8 and later return the DynamicMethod itself from Delegate.Method, and .NET Standard plugins and apps that target an older .NET run this assembly there;
+				// .NET Framework returns its RTDynamicMethod wrapper, which IsLightweightMethod finds
+				if (eventHandler is DynamicMethod dynamicMethod)
+				{
+					dynamicMethod.Invoke(instance, [sender, eventArgs]);
+				}
+				else if (eventHandler.IsLightweightMethod())
 				{
 					var method = TryGetDynamicMethod(eventHandler);
 					method?.Invoke(instance, [sender, eventArgs]);
@@ -114,7 +120,11 @@ static class EventManagerService
 					eventHandler.Invoke(instance, [actionEventArgs]);
 				}
 #else
-				if (eventHandler.IsLightweightMethod())
+				if (eventHandler is DynamicMethod dynamicMethod)
+				{
+					dynamicMethod.Invoke(instance, [actionEventArgs]);
+				}
+				else if (eventHandler.IsLightweightMethod())
 				{
 					var method = TryGetDynamicMethod(eventHandler);
 					method?.Invoke(instance, [actionEventArgs]);

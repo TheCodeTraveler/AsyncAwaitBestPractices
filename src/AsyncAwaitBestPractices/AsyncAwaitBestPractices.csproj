@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;netstandard2.0;netstandard2.1;net8.0;net9.0;$(LatestSupportedTFM)</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard2.0;netstandard2.1;net8.0;net9.0;net10.0;$(LatestSupportedTFM)</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);$(LatestSupportedTFM)-windows</TargetFrameworks>
     <IsAotCompatible Condition="$(TargetFramework.StartsWith('netstandard')) == false">true</IsAotCompatible>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>AsyncAwaitBestPractices.snk</AssemblyOriginatorKeyFile>
@@ -28,11 +29,14 @@
     </Description>
     <PackageReleaseNotes>
       New In This Release:
-      - Add Support for .NET 10
+      - Add Support for .NET 11
+      - Breaking Change: the InvalidHandleEventException constructor now throws ArgumentNullException for a null message or a null inner exception
+      - Assembly version is now 11.0.0.0: .NET Framework apps may need binding redirects, as with every major release
+      - Fix WeakEventManager skipping event handlers created with DynamicMethod when a .NET Standard assembly runs on .NET 8 or later
     </PackageReleaseNotes>
     <Version>$(NuGetVersion)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/brminnick/AsyncAwaitBestPractices</RepositoryUrl>
+    <RepositoryUrl>https://github.com/TheCodeTraveler/AsyncAwaitBestPractices</RepositoryUrl>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>$(NuGetVersion)</AssemblyVersion>
     <AssemblyFileVersion>$(NuGetVersion)</AssemblyFileVersion>

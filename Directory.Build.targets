@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project>
+  <PropertyGroup Condition="'$([MSBuild]::GetTargetPlatformIdentifier($(TargetFramework)))' == 'windows'
+                      AND '$([MSBuild]::GetTargetFrameworkVersion($(TargetFramework)))' >= '11.0'
+                      AND !$(Features.Contains('runtime-async'))">
+    <Features>$(Features);runtime-async=on</Features>
+  </PropertyGroup>
+</Project>

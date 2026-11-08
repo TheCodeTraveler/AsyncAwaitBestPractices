@@ -107,7 +107,7 @@ jobs:
           "NugetPackageVersion=$nugetPackageVersion" >> $env:GITHUB_ENV
           "NuGet Package Version: ``$nugetPackageVersion``" >> $env:GITHUB_STEP_SUMMARY
 
-      # The unit tests run on these three runtimes; each SDK brings its runtime
+      # The net8.0, net9.0 and net10.0 unit tests run on these runtimes, and each SDK brings its runtime; the .NET 11 SDK below runs the net11.0 tests
       - name: Use .NET SDKs 8.0.x, 9.0.x, 10.0.x
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
@@ -125,6 +125,12 @@ jobs:
 
       - name: Run UnitTests
         run: dotnet test $env:PathToUnitTestsCsproj -c Release --settings ".runsettings" --collect "code coverage" --logger trx --results-directory "$env:RUNNER_TEMP"
+
+      # The test targets above run the net8.0 and later assemblies, or netstandard2.0 on .NET Framework; only this run executes the .NET Standard code
+      # on a modern runtime, where .NET Standard plugins and apps that target an older .NET load it
+      - name: Run UnitTests against the .NET Standard 2.1 assembly
+        if: ${{ !cancelled() }}
+        run: dotnet test $env:PathToUnitTestsCsproj -c Release -f net10.0 "-p:TestedLibraryTargetFramework=netstandard2.1" --settings ".runsettings" --logger trx --results-directory "$env:RUNNER_TEMP"
 
       - name: Publish Test Results
         if: ${{ !cancelled() }}
@@ -172,17 +178,21 @@ jobs:
       - name: Pack AsyncAwaitBestPractices.MVVM NuGet
         run: dotnet pack $env:PathToAsyncAwaitBestPracticesMVVMCsproj -c Release "-p:PackageVersion=$env:NugetPackageVersion"
 
+      # A failed 'dotnet list' must fail the step; otherwise an unchecked project reads as "no vulnerable packages"
       - name: Check AsyncAwaitBestPractices Dependencies Vulnerabilities
         if: ${{ !cancelled() }}
         run: |
           dotnet list $env:PathToAsyncAwaitBestPracticesCsproj package --vulnerable --include-transitive | Tee-Object -Variable output
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if ($output -cmatch 'has the following vulnerable packages') { exit 1 }
           exit 0
 
+      # A failed 'dotnet list' must fail the step; otherwise an unchecked project reads as "no vulnerable packages"
       - name: Check AsyncAwaitBestPractices.MVVM Dependencies Vulnerabilities
         if: ${{ !cancelled() }}
         run: |
           dotnet list $env:PathToAsyncAwaitBestPracticesMVVMCsproj package --vulnerable --include-transitive | Tee-Object -Variable output
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if ($output -cmatch 'has the following vulnerable packages') { exit 1 }
           exit 0
 
