@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 
 namespace AsyncAwaitBestPractices.UnitTests;
@@ -20,6 +22,7 @@ abstract class BaseTest
 	}
 
 	protected const int Delay = 500;
+	protected static int DynamicMethodInvocationCount;
 	protected WeakEventManager TestWeakEventManager { get; } = new();
 	protected WeakEventManager<string> TestStringWeakEventManager { get; } = new();
 
@@ -83,5 +86,20 @@ abstract class BaseTest
 			return parameter;
 
 		throw new InvalidCastException();
+	}
+	protected static TDelegate CreateCountingDynamicMethodHandler<TDelegate>(params Type[] parameterTypes) where TDelegate : Delegate
+	{
+		var invocationCountField = typeof(BaseTest).GetField(nameof(DynamicMethodInvocationCount), BindingFlags.NonPublic | BindingFlags.Static)
+			?? throw new InvalidOperationException($"{nameof(DynamicMethodInvocationCount)} not found");
+
+		var dynamicMethod = new DynamicMethod(string.Empty, typeof(void), parameterTypes, typeof(BaseTest));
+		var ilGenerator = dynamicMethod.GetILGenerator();
+		ilGenerator.Emit(OpCodes.Ldsfld, invocationCountField);
+		ilGenerator.Emit(OpCodes.Ldc_I4_1);
+		ilGenerator.Emit(OpCodes.Add);
+		ilGenerator.Emit(OpCodes.Stsfld, invocationCountField);
+		ilGenerator.Emit(OpCodes.Ret);
+
+		return (TDelegate)dynamicMethod.CreateDelegate(typeof(TDelegate));
 	}
 }

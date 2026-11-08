@@ -143,17 +143,15 @@ class Tests_WeakEventManager_Delegate : BaseTest, INotifyPropertyChanged
 	public void WeakEventManagerDelegate_HandleEvent_DynamicMethod_ValidImplementation()
 	{
 		//Arrange
-		var dynamicMethod = new System.Reflection.Emit.DynamicMethod(string.Empty, typeof(void), [typeof(object), typeof(PropertyChangedEventArgs)]);
-		var ilGenerator = dynamicMethod.GetILGenerator();
-		ilGenerator.Emit(System.Reflection.Emit.OpCodes.Ret);
-
-		var handler = (PropertyChangedEventHandler)dynamicMethod.CreateDelegate(typeof(PropertyChangedEventHandler));
+		var handler = CreateCountingDynamicMethodHandler<PropertyChangedEventHandler>(typeof(object), typeof(PropertyChangedEventArgs));
 		PropertyChanged += handler;
+		DynamicMethodInvocationCount = 0;
 
 		//Act
+		_propertyChangedWeakEventManager.RaiseEvent(this, new PropertyChangedEventArgs("Test"), nameof(PropertyChanged));
 
 		//Assert
-		Assert.DoesNotThrow(() => _propertyChangedWeakEventManager.RaiseEvent(this, new PropertyChangedEventArgs("Test"), nameof(PropertyChanged)));
+		Assert.That(DynamicMethodInvocationCount, Is.EqualTo(1));
 		PropertyChanged -= handler;
 	}
 

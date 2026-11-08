@@ -340,4 +340,20 @@ class Tests_WeakEventManager_ActionT : BaseTest
 		}
 	}
 #endif
+
+	[Test]
+	public void WeakEventManagerActionT_HandleEvent_DynamicMethod_ValidImplementation()
+	{
+		//Arrange
+		var handler = CreateCountingDynamicMethodHandler<Action<string>>(typeof(string));
+		ActionEvent += handler;
+		DynamicMethodInvocationCount = 0;
+
+		//Act
+		_actionEventManager.RaiseEvent("Test", nameof(ActionEvent));
+
+		//Assert
+		Assert.That(DynamicMethodInvocationCount, Is.EqualTo(1));
+		ActionEvent -= handler;
+	}
 }

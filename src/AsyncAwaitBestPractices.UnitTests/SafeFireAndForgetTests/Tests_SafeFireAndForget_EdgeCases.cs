@@ -45,7 +45,7 @@ class Tests_SafeFireAndForget_EdgeCases : BaseTest
 		Assert.That(caughtException, Is.Null);
 	}
 
-#if NET80_OR_GREATER
+#if NET8_0_OR_GREATER
 
 	[Test]
 	public async Task SafeFireAndForget_CompletedValueTask_NoException()

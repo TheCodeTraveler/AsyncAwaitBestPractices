@@ -341,4 +341,20 @@ class Tests_WeakEventManager_EventHandlerT : BaseTest
 
 		void HandleTestStringEvent(object? sender, string e) => didEventFire = true;
 	}
+
+	[Test]
+	public void WeakEventManagerTEventArgs_HandleEvent_DynamicMethod_ValidImplementation()
+	{
+		//Arrange
+		var handler = CreateCountingDynamicMethodHandler<EventHandler<string>>(typeof(object), typeof(string));
+		TestStringEvent += handler;
+		DynamicMethodInvocationCount = 0;
+
+		//Act
+		TestStringWeakEventManager.RaiseEvent(this, "Test", nameof(TestStringEvent));
+
+		//Assert
+		Assert.That(DynamicMethodInvocationCount, Is.EqualTo(1));
+		TestStringEvent -= handler;
+	}
 }
