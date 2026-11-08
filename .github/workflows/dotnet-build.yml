@@ -78,9 +78,17 @@ jobs:
           if grep -q 'has the following vulnerable packages' "$RUNNER_TEMP/vulnerable-packages.txt"; then exit 1; fi
 
   build_test_library:
-    name: Build + Test Library
+    name: Build + Test Library (${{ matrix.name }})
     runs-on: windows-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            image: windows-latest
+          - name: macOS
+            image: macos-latest
 
     steps:
       - name: Checkout
