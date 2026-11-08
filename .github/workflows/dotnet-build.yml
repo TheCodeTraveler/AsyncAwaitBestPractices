@@ -89,6 +89,9 @@ jobs:
             image: windows-latest
           - name: macOS
             image: macos-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
       - name: Checkout
