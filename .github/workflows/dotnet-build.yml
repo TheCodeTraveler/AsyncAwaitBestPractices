@@ -60,7 +60,7 @@ jobs:
           persist-credentials: false
 
       - name: Use .NET SDK v${{ env.NET_VERSION }}
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: ${{ env.NET_VERSION }}
           dotnet-quality: ${{ env.NET_QUALITY }}
@@ -120,7 +120,7 @@ jobs:
 
       # The net8.0, net9.0 and net10.0 unit tests run on these runtimes, and each SDK brings its runtime; the .NET 11 SDK below runs the net11.0 tests
       - name: Use .NET SDKs 8.0.x, 9.0.x, 10.0.x
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: |
             8.0.x
@@ -129,7 +129,7 @@ jobs:
           dotnet-quality: 'ga'
 
       - name: Use .NET SDK v${{ env.NET_VERSION }}
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: ${{ env.NET_VERSION }}
           dotnet-quality: ${{ env.NET_QUALITY }}
