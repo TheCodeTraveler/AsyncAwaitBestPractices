@@ -12,7 +12,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '11.0.x'
           # .NET 11 is a release candidate until GA, and after GA the 'preview' feed stays on the last RC (as the 8.0, 9.0 and 10.0 feeds do), so switch to 'ga' together with global.json
