@@ -165,7 +165,7 @@ jobs:
       - name: Generate Code Coverage Report
         id: code-coverage
         if: ${{ !cancelled() && runner.os == 'Windows' }}
-        uses: danielpalme/ReportGenerator-GitHub-Action@d3ebf1f760f7d8ab92cc44d9bcfee7ad73722a31 # v5.5.11
+        uses: danielpalme/ReportGenerator-GitHub-Action@70c37c4d588cff5bf9cf190830c6f01dfcfb884b # v5.6.1
         with:
           reports: ${{ runner.temp }}/**/coverage.cobertura.xml
           targetdir: ${{ runner.temp }}/CodeCoverage
